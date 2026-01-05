@@ -143,7 +143,7 @@ void OrderService::showUserOrders(int userId) {
             cout << left << setw(10) << res->getInt("order_id")
                 << setw(15) << res->getString("machine_name")
                 << setw(15) << res->getString("order_status")
-                << "$" << setw(9) << res->getDouble("cost")
+                << "RM" << setw(9) << res->getDouble("cost")
                 << res->getString("start_time") << endl;
         }
         if (!found) cout << "No orders found." << endl;
@@ -165,7 +165,7 @@ void OrderService::showTransactionHistory(int userId) {
             string type = res->getString("type");
             double amount = res->getDouble("amount");
             string date = res->getString("date");
-            string displayAmount = (type == "TopUp" ? "+ $" : "- $") + to_string(amount).substr(0, to_string(amount).find(".") + 3);
+            string displayAmount = (type == "TopUp" ? "+ RM" : "- RM") + to_string(amount).substr(0, to_string(amount).find(".") + 3);
             cout << left << setw(20) << date << setw(15) << type << setw(10) << displayAmount << endl;
         }
         cout << "=====================================================" << endl;

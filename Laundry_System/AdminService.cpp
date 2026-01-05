@@ -25,7 +25,7 @@ void AdminService::listCustomers() {
             cout << left << setw(5) << res->getInt("user_id")
                 << setw(15) << res->getString("username")
                 << setw(25) << res->getString("email")
-                << "$" << fixed << setprecision(2) << res->getDouble("balance") << endl;
+                << "RM" << fixed << setprecision(2) << res->getDouble("balance") << endl;
         }
         cout << "-------------------------------------------------------" << endl;
     }
@@ -143,7 +143,7 @@ void AdminService::listAllOrders() {
                 << setw(15) << res->getString("username")
                 << setw(15) << res->getString("machine_name")
                 << setw(15) << res->getString("order_status")
-                << "$" << res->getDouble("cost") << endl;
+                << "RM" << res->getDouble("cost") << endl;
         }
     }
     catch (...) {}
@@ -187,7 +187,7 @@ void AdminService::generateDailyReport() {
         // Revenue
         unique_ptr<sql::PreparedStatement> pstmt1(db_connection->prepareStatement("SELECT COALESCE(SUM(cost), 0.00) AS total FROM orders WHERE DATE(start_time) = CURDATE()"));
         unique_ptr<sql::ResultSet> res1(pstmt1->executeQuery());
-        if (res1 && res1->next()) cout << " Total Revenue    : $" << res1->getDouble("total") << endl;
+        if (res1 && res1->next()) cout << " Total Revenue    : RM" << res1->getDouble("total") << endl;
 
         // Count
         unique_ptr<sql::PreparedStatement> pstmt2(db_connection->prepareStatement("SELECT COUNT(*) AS cnt FROM orders WHERE DATE(start_time) = CURDATE()"));

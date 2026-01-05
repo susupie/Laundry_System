@@ -71,12 +71,12 @@ void AdminService::report_FinancialSummary() {
 
         cout << "\n2. Financial Summary List:\n" << endl;
 
-        cout << "  1. Total Laundry Revenue : $" << fixed << setprecision(2) << totalRev << endl;
-        cout << "  2. Total Wallet Top-Ups  : $" << totalTopup << endl;
+        cout << "  1. Total Laundry Revenue : RM" << fixed << setprecision(2) << totalRev << endl;
+        cout << "  2. Total Wallet Top-Ups  : RM" << totalTopup << endl;
 
         // Calculate "Float" (Money held in user wallets but not spent)
         double netHoldings = totalTopup - totalRev;
-        cout << "  3. Net Float (Unspent)   : $" << netHoldings << endl;
+        cout << "  3. Net Float (Unspent)   : RM" << netHoldings << endl;
 
     }
     catch (const exception& e) {
@@ -106,13 +106,13 @@ void AdminService::report_RevenueBarChart() {
 
             cout << "  " << left << setw(12) << date << " : ";
 
-            // Logic: 1 Star (*) per $10 earned
+            // Logic: 1 Star (*) per RM10 earned
             int barLength = static_cast<int>(sales / 10.0);
             if (barLength == 0 && sales > 0) barLength = 1; // At least one star if any sale
 
             for (int i = 0; i < barLength; i++) cout << "*"; // The "Bar"
 
-            cout << " ($" << fixed << setprecision(2) << sales << ")" << endl;
+            cout << " (RM" << fixed << setprecision(2) << sales << ")" << endl;
         }
 
     }
@@ -144,7 +144,7 @@ void AdminService::report_RevenueTrendAnalysis() {
             string date = res->getString("dt");
             double currentSales = res->getDouble("daily_sales");
 
-            cout << "  Date " << left << setw(12) << date << " Sales: $" << fixed << setprecision(2) << currentSales;
+            cout << "  Date " << left << setw(12) << date << " Sales: RM" << fixed << setprecision(2) << currentSales;
 
             if (!firstRow && prevSales > 0) {
                 // Calculate Percentage Change
