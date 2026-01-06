@@ -181,45 +181,68 @@ void SubMenu_Reports(AdminService& service) {
     bool backToMain = false;
     while (!backToMain) {
         printHeader("ADVANCED REPORTING");
-        cout << "1. View Daily Report (Console)" << endl;
-        cout << "2. View Transaction History (Console)" << endl;
+        cout << "1. Machine Performance Table" << endl;
+        cout << "2. Financial Summary List" << endl;
+        cout << "3. Revenue Bar Chart (Visual)" << endl;
+        cout << "4. Revenue Trend Analysis (%)" << endl;
+        cout << "5. Search Orders" << endl;
         cout << "----------------------------------------------" << endl;
-        cout << "3. EXPORT Daily Report (.pdf)" << endl;
-        cout << "4. EXPORT Transaction History (.pdf)" << endl;
+        cout << "6. EXPORT Daily Report to PDF (Auto-Saves to DB)" << endl;
+        cout << "7. EXPORT Transaction History to PDF" << endl;
+        cout << "8. View Archived Past Reports (From DB)" << endl;
+        cout << "9. Back" << endl;
         cout << "----------------------------------------------" << endl;
-        cout << "5. Save Today's Stats to Database" << endl;
-        cout << "6. View Past Database Reports" << endl;
-        cout << "7. Back" << endl;
-        cout << "Select Option > ";
+        cout << "Select Report > ";
 
-        int choice = getValidatedChoice(1, 7);
+        int choice = getValidatedChoice(1, 9);
 
-        if (choice == 1) {
-            service.generateDailyReport();
-            cout << "\n(Press Enter...)"; cin.get(); cin.get();
-        }
-        else if (choice == 2) {
-            service.listAllOrders(); // Reusing the list function for view
-            cout << "\n(Press Enter...)"; cin.get(); cin.get();
-        }
-        else if (choice == 3) {
-            service.exportDailyReportPDF(); // CALL PDF GENERATOR
-            cout << "\n(Press Enter...)"; cin.get(); cin.get();
-        }
-        else if (choice == 4) {
-            service.exportTransactionHistoryPDF(); // CALL PDF GENERATOR
-            cout << "\n(Press Enter...)"; cin.get(); cin.get();
-        }
+        // Options 1-5 remain the same (Console Views)
+        if (choice == 1) service.report_MachineUsageTable();
+        else if (choice == 2) service.report_FinancialSummary();
+        else if (choice == 3) service.report_RevenueBarChart();
+        else if (choice == 4) service.report_RevenueTrendAnalysis();
         else if (choice == 5) {
-            service.saveDailyReportToDB();
-            cout << "\n(Press Enter...)"; cin.get(); cin.get();
+            printSectionHeader("SEARCH DATABASE");
+            cout << "Enter Customer Username : ";
+            string s; cin >> s;
+            service.searchOrders(s);
         }
+
+        // --- NEW EXPORT LOGIC ---
         else if (choice == 6) {
-            service.viewSavedReports();
-            cout << "\n(Press Enter...)"; cin.get(); cin.get();
+            printSectionHeader("EXPORT DAILY REPORT");
+            cout << "Enter filename to save (e.g. jan_06_report): ";
+            string fname;
+            cin >> fname;
+
+            // This now saves to DB AND creates the PDF
+            service.exportDailyReportPDF(fname);
+
+            cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
         }
         else if (choice == 7) {
+            printSectionHeader("EXPORT TRANS. HISTORY");
+            cout << "Enter filename to save (e.g. history_log): ";
+            string fname;
+            cin >> fname;
+
+            service.exportTransactionHistoryPDF(fname);
+
+            cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
+        }
+
+        // --- VIEW SAVED REPORTS ---
+        else if (choice == 8) {
+            service.viewSavedReports();
+            cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
+        }
+
+        else if (choice == 9) {
             backToMain = true;
+        }
+
+        if (!backToMain && choice <= 5) {
+            cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
         }
     }
 }

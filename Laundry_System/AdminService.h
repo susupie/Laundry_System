@@ -36,10 +36,12 @@ public:
     void generateDailyReport(); 
 
     void saveDailyReportToDB();
+    void exportDailyReportPDF(std::string customFilename);
+    void exportTransactionHistoryPDF(std::string customFilename);
+
+    void viewSavedReports();
 
     // NEW: View the history saved in the 'reports' table
-    void viewSavedReports();
-    void exportDailyReportPDF();
     void exportTransactionHistoryPDF();
 
     // --- 6. BACKUP (Implemented in AdminService_Records.cpp) ---
