@@ -36,11 +36,16 @@ public:
     void generateDailyReport(); 
 
     void saveDailyReportToDB();
-    void exportDailyReportPDF(std::string customFilename);
     void exportTransactionHistoryPDF(std::string customFilename);
 
     void viewSavedReports();
 
+    void exportDailyReportPDF(std::string filename, std::string targetDate);
+
+    // 2. Export Summary of ALL DATES (From 'reports' table)
+    void exportAllHistoryPDF(std::string filename);
+
+    void exportTransactionHistoryPDF(std::string customFilename);
     // NEW: View the history saved in the 'reports' table
     void exportTransactionHistoryPDF();
 

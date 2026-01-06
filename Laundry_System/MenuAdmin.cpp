@@ -207,18 +207,40 @@ void SubMenu_Reports(AdminService& service) {
             string s; cin >> s;
             service.searchOrders(s);
         }
-
-        // --- NEW EXPORT LOGIC ---
         else if (choice == 6) {
-            printSectionHeader("EXPORT DAILY REPORT");
-            cout << "Enter filename to save (e.g. jan_06_report): ";
-            string fname;
-            cin >> fname;
+            printSectionHeader("EXPORT REPORTS TO PDF");
+            cout << "1. Export Today's Report" << endl;
+            cout << "2. Export Specific Date" << endl;
+            cout << "3. Export ALL History (Summary)" << endl;
+            cout << "4. Cancel" << endl;
+            cout << "Select Type > ";
 
-            // This now saves to DB AND creates the PDF
-            service.exportDailyReportPDF(fname);
+            int pdfChoice = getValidatedChoice(1, 4);
 
-            cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
+            if (pdfChoice == 1) {
+                cout << "Filename (e.g. today_sales): ";
+                string fname; cin >> fname;
+                // Pass "CURDATE()" to indicate today
+                service.exportDailyReportPDF(fname, "CURDATE()");
+            }
+            else if (pdfChoice == 2) {
+                cout << "Enter Date (YYYY-MM-DD): ";
+                string dateStr; cin >> dateStr;
+                cout << "Filename (e.g. old_report): ";
+                string fname; cin >> fname;
+                // Pass the specific date string
+                service.exportDailyReportPDF(fname, dateStr);
+            }
+            else if (pdfChoice == 3) {
+                cout << "Filename (e.g. full_history): ";
+                string fname; cin >> fname;
+                // Call the new All History function
+                service.exportAllHistoryPDF(fname);
+            }
+
+            if (pdfChoice != 4) {
+                cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
+            }
         }
         else if (choice == 7) {
             printSectionHeader("EXPORT TRANS. HISTORY");

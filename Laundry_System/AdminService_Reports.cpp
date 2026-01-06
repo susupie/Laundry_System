@@ -21,7 +21,10 @@ string AdminService::getCurrentDate() {
     time_t now = time(0);
     struct tm tstruct;
     char buf[80];
-    tstruct = *localtime(&now);
+
+    // NEW WAY (Visual Studio Safe):
+    localtime_s(&tstruct, &now);
+
     strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
     return string(buf);
 }
@@ -99,16 +102,32 @@ void AdminService::createRawPDF(string filename, string title, vector<string> li
 // =================================================================================
 //  EXPORT FUNCTIONS (Prepare Data -> Call PDF Engine)
 // =================================================================================
-void AdminService::exportDailyReportPDF(string customFilename) {
-    // 1. AUTOMATICALLY SAVE TO DATABASE FIRST
-    // This ensures that whenever a report is printed, the DB is updated.
-    saveDailyReportToDB();
+#include "AdminService.h"
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <vector>
+#include <ctime>
+#include <sstream>
 
-    cout << "\n[SYSTEM] Generating PDF Document..." << endl;
+using namespace std;
 
-    // 2. Handle Filename Extension
-    if (customFilename.length() < 4 || customFilename.substr(customFilename.length() - 4) != ".pdf") {
-        customFilename += ".pdf";
+// ... (Keep getCurrentDate and createRawPDF as they are) ...
+
+// =================================================================================
+//  1. EXPORT SPECIFIC DATE REPORT
+// =================================================================================
+void AdminService::exportDailyReportPDF(string filename, string targetDate) {
+
+    // If user requests "TODAY", we first save to DB to ensure data is fresh
+    if (targetDate == "CURDATE()") {
+        saveDailyReportToDB();
+    }
+
+    cout << "\n[SYSTEM] Generating PDF for date: " << (targetDate == "CURDATE()" ? "TODAY" : targetDate) << "..." << endl;
+
+    if (filename.length() < 4 || filename.substr(filename.length() - 4) != ".pdf") {
+        filename += ".pdf";
     }
 
     vector<string> pdfLines;
@@ -117,26 +136,38 @@ void AdminService::exportDailyReportPDF(string customFilename) {
         double totalRev = 0, totalTopup = 0;
         int totalOrders = 0;
 
-        // Fetch Data
-        unique_ptr<sql::PreparedStatement> pst1(db_connection->prepareStatement("SELECT COALESCE(SUM(amount),0) FROM credit_transactions WHERE type='TopUp' AND DATE(date)=CURDATE()"));
+        // SQL: Use the targetDate parameter instead of hardcoded CURDATE()
+        // If targetDate is "CURDATE()", MySQL understands it. 
+        // If it's "2025-10-05", we need quotes.
+
+        string dateClause = (targetDate == "CURDATE()") ? "CURDATE()" : "'" + targetDate + "'";
+
+        // 1. Revenue
+        string sql1 = "SELECT COALESCE(SUM(cost),0) FROM orders WHERE DATE(start_time) = " + dateClause;
+        unique_ptr<sql::PreparedStatement> pst1(db_connection->prepareStatement(sql1));
         unique_ptr<sql::ResultSet> rs1(pst1->executeQuery());
-        if (rs1->next()) totalTopup = rs1->getDouble(1);
+        if (rs1->next()) totalRev = rs1->getDouble(1);
 
-        unique_ptr<sql::PreparedStatement> pst2(db_connection->prepareStatement("SELECT COALESCE(SUM(cost),0) FROM orders WHERE DATE(start_time)=CURDATE()"));
+        // 2. Top-Ups
+        string sql2 = "SELECT COALESCE(SUM(amount),0) FROM credit_transactions WHERE type='TopUp' AND DATE(date) = " + dateClause;
+        unique_ptr<sql::PreparedStatement> pst2(db_connection->prepareStatement(sql2));
         unique_ptr<sql::ResultSet> rs2(pst2->executeQuery());
-        if (rs2->next()) totalRev = rs2->getDouble(1);
+        if (rs2->next()) totalTopup = rs2->getDouble(1);
 
-        unique_ptr<sql::PreparedStatement> pst3(db_connection->prepareStatement("SELECT COUNT(*) FROM orders WHERE DATE(start_time)=CURDATE()"));
+        // 3. Orders Count
+        string sql3 = "SELECT COUNT(*) FROM orders WHERE DATE(start_time) = " + dateClause;
+        unique_ptr<sql::PreparedStatement> pst3(db_connection->prepareStatement(sql3));
         unique_ptr<sql::ResultSet> rs3(pst3->executeQuery());
         if (rs3->next()) totalOrders = rs3->getInt(1);
 
-        // Format for PDF
+        // --- FORMATTING PDF ---
+        pdfLines.push_back("REPORT DATE: " + (targetDate == "CURDATE()" ? getCurrentDate() : targetDate));
         pdfLines.push_back("------------------------------------------------------------");
         pdfLines.push_back("METRIC                          VALUE");
         pdfLines.push_back("------------------------------------------------------------");
 
         stringstream ss;
-        ss << left << setw(32) << "Total Revenue Today" << "RM " << fixed << setprecision(2) << totalRev;
+        ss << left << setw(32) << "Total Revenue" << "RM " << fixed << setprecision(2) << totalRev;
         pdfLines.push_back(ss.str()); ss.str("");
 
         ss << left << setw(32) << "Total Top-Ups Collected" << "RM " << fixed << setprecision(2) << totalTopup;
@@ -146,14 +177,74 @@ void AdminService::exportDailyReportPDF(string customFilename) {
         pdfLines.push_back(ss.str()); ss.str("");
 
         pdfLines.push_back("------------------------------------------------------------");
-        pdfLines.push_back("");
-        pdfLines.push_back("Generated by Smart Laundry Admin System.");
 
-        // 3. Create PDF with Custom Name
-        createRawPDF(customFilename, "DAILY FINANCIAL REPORT", pdfLines);
+        // Add Machine Breakdown for that specific day
+        pdfLines.push_back("");
+        pdfLines.push_back("MACHINE BREAKDOWN:");
+
+        string sqlMac = "SELECT m.machine_name, COUNT(*) FROM orders o JOIN machines m ON o.machine_id = m.machine_id WHERE DATE(start_time) = " + dateClause + " GROUP BY m.machine_name";
+        unique_ptr<sql::PreparedStatement> pstM(db_connection->prepareStatement(sqlMac));
+        unique_ptr<sql::ResultSet> rsM(pstM->executeQuery());
+
+        while (rsM->next()) {
+            ss << " - " << left << setw(20) << rsM->getString(1) << rsM->getInt(2) << " Cycles";
+            pdfLines.push_back(ss.str()); ss.str("");
+        }
+
+        createRawPDF(filename, "FINANCIAL REPORT", pdfLines);
 
     }
-    catch (...) { cout << "Error fetching data." << endl; }
+    catch (const exception& e) {
+        cout << "[ERROR] Invalid Date Format or DB Error: " << e.what() << endl;
+    }
+}
+
+// =================================================================================
+//  2. EXPORT ALL HISTORY (SUMMARY OF ALL DAYS)
+// =================================================================================
+void AdminService::exportAllHistoryPDF(string filename) {
+    cout << "\n[SYSTEM] Generating Full History Report..." << endl;
+
+    if (filename.length() < 4 || filename.substr(filename.length() - 4) != ".pdf") {
+        filename += ".pdf";
+    }
+
+    vector<string> pdfLines;
+    pdfLines.push_back("----------------------------------------------------------------");
+    pdfLines.push_back("DATE            REVENUE         TOP-UPS         ORDERS");
+    pdfLines.push_back("----------------------------------------------------------------");
+
+    try {
+        // We read from the 'reports' table which stores the daily archives
+        unique_ptr<sql::PreparedStatement> pstmt(
+            db_connection->prepareStatement("SELECT * FROM reports ORDER BY report_date DESC")
+        );
+        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        double grandTotalRev = 0;
+
+        while (res && res->next()) {
+            double rev = res->getDouble("total_revenue");
+            double top = res->getDouble("total_topups");
+            grandTotalRev += rev;
+
+            stringstream ss;
+            ss << left << setw(16) << res->getString("report_date")
+                << "RM " << setw(13) << fixed << setprecision(2) << rev
+                << "RM " << setw(13) << top
+                << res->getInt("total_orders");
+            pdfLines.push_back(ss.str());
+        }
+
+        pdfLines.push_back("----------------------------------------------------------------");
+        stringstream foot;
+        foot << "GRAND TOTAL REVENUE: RM " << fixed << setprecision(2) << grandTotalRev;
+        pdfLines.push_back(foot.str());
+
+    }
+    catch (...) {}
+
+    createRawPDF(filename, "FULL BUSINESS HISTORY", pdfLines);
 }
 
 void AdminService::exportTransactionHistoryPDF(string customFilename) {
