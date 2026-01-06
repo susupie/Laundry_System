@@ -39,6 +39,8 @@ public:
 
     // NEW: View the history saved in the 'reports' table
     void viewSavedReports();
+    void exportDailyReportPDF();
+    void exportTransactionHistoryPDF();
 
     // --- 6. BACKUP (Implemented in AdminService_Records.cpp) ---
     void saveData();
@@ -46,4 +48,9 @@ public:
 
 private:
     std::shared_ptr<DBConnection> db_connection;
+
+    void createRawPDF(std::string filename, std::string title, std::vector<std::string> lines);
+
+    // Helper: Get Date string
+    std::string getCurrentDate();
 };

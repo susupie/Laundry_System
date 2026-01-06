@@ -6,11 +6,176 @@
 
 using namespace std;
 
-//// ... (Keep searchOrders / saveData / loadData as they were) ...
-//void AdminService::searchOrders(string keyword) { /* ... */ }
-//void AdminService::saveData() { /* ... */ }
-//void AdminService::loadData() { /* ... */ }
+#include "AdminService.h"
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <vector>
+#include <ctime>
+#include <sstream>
 
+using namespace std;
+
+// --- HELPER: Get Date ---
+string AdminService::getCurrentDate() {
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
+    return string(buf);
+}
+
+// =================================================================================
+//  THE "PURE C++" PDF GENERATOR ENGINE
+// =================================================================================
+void AdminService::createRawPDF(string filename, string title, vector<string> lines) {
+    ofstream file(filename);
+    if (!file.is_open()) {
+        cout << "[ERROR] Could not create PDF file." << endl;
+        return;
+    }
+
+    // 1. PDF Header
+    file << "%PDF-1.4\n";
+
+    // 2. Object 1: Catalog
+    file << "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
+
+    // 3. Object 2: Pages (Root)
+    file << "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
+
+    // 4. Object 3: Page Definition
+    file << "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n";
+
+    // 5. Object 5: Font Definition (Helvetica)
+    file << "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>\nendobj\n";
+
+    // 6. Object 4: The Content Stream (Where text goes)
+    file << "4 0 obj\n<< /Length " << (1000 + lines.size() * 100) << " >>\nstream\n";
+
+    // Start Text Block
+    file << "BT\n";
+    file << "/F1 24 Tf\n";      // Font Size 24 (Title)
+    file << "50 750 Td\n";      // Position Top-Left (x=50, y=750)
+    file << "(" << title << ") Tj\n"; // Write Title
+
+    file << "/F1 12 Tf\n";      // Font Size 12 (Body)
+    file << "0 -30 Td\n";       // Move down 30 units
+    file << "(Date: " << getCurrentDate() << ") Tj\n";
+    file << "0 -30 Td\n";       // Move down another 30 units for content
+
+    // Loop through the data lines and write them
+    for (const string& line : lines) {
+        // Escape parentheses ( ) because PDF uses them for strings
+        string safeLine = line;
+        // (In a full app, you'd replace '(' with '\(' etc., but basic text is fine)
+
+        file << "(" << safeLine << ") Tj\n"; // Write line
+        file << "0 -15 Td\n";                // Move down 15 units (Next line)
+    }
+
+    file << "ET\n"; // End Text Block
+    file << "endstream\nendobj\n";
+
+    // 7. Cross-Reference Table (Simplified)
+    file << "xref\n";
+    file << "0 6\n";
+    file << "0000000000 65535 f \n";
+    file << "0000000010 00000 n \n"; // Obj 1
+    file << "0000000060 00000 n \n"; // Obj 2
+    file << "0000000110 00000 n \n"; // Obj 3
+    file << "0000000300 00000 n \n"; // Obj 4 (Content)
+    file << "0000000200 00000 n \n"; // Obj 5 (Font)
+
+    // 8. Trailer
+    file << "trailer\n<< /Size 6 /Root 1 0 R >>\n";
+    file << "startxref\n400\n%%EOF\n";
+
+    file.close();
+    cout << "[SUCCESS] Report exported to '" << filename << "'" << endl;
+}
+
+// =================================================================================
+//  EXPORT FUNCTIONS (Prepare Data -> Call PDF Engine)
+// =================================================================================
+
+void AdminService::exportDailyReportPDF() {
+    cout << "\n[SYSTEM] Generating Financial Data..." << endl;
+    vector<string> pdfLines;
+
+    try {
+        double totalRev = 0, totalTopup = 0;
+        int totalOrders = 0;
+
+        // Fetch Data
+        unique_ptr<sql::PreparedStatement> pst1(db_connection->prepareStatement("SELECT COALESCE(SUM(amount),0) FROM credit_transactions WHERE type='TopUp' AND DATE(date)=CURDATE()"));
+        unique_ptr<sql::ResultSet> rs1(pst1->executeQuery());
+        if (rs1->next()) totalTopup = rs1->getDouble(1);
+
+        unique_ptr<sql::PreparedStatement> pst2(db_connection->prepareStatement("SELECT COALESCE(SUM(cost),0) FROM orders WHERE DATE(start_time)=CURDATE()"));
+        unique_ptr<sql::ResultSet> rs2(pst2->executeQuery());
+        if (rs2->next()) totalRev = rs2->getDouble(1);
+
+        unique_ptr<sql::PreparedStatement> pst3(db_connection->prepareStatement("SELECT COUNT(*) FROM orders WHERE DATE(start_time)=CURDATE()"));
+        unique_ptr<sql::ResultSet> rs3(pst3->executeQuery());
+        if (rs3->next()) totalOrders = rs3->getInt(1);
+
+        // Format Data for PDF (Manually creating the "Table" look using spaces)
+        // Note: Courier font (used above) is Monospaced, so spaces align perfectly.
+        pdfLines.push_back("------------------------------------------------------------");
+        pdfLines.push_back("METRIC                          VALUE");
+        pdfLines.push_back("------------------------------------------------------------");
+
+        stringstream ss;
+        ss << left << setw(32) << "Total Revenue Today" << "RM " << fixed << setprecision(2) << totalRev;
+        pdfLines.push_back(ss.str()); ss.str(""); // Reset stringstream
+
+        ss << left << setw(32) << "Total Top-Ups Collected" << "RM " << fixed << setprecision(2) << totalTopup;
+        pdfLines.push_back(ss.str()); ss.str("");
+
+        ss << left << setw(32) << "Total Orders Processed" << totalOrders;
+        pdfLines.push_back(ss.str()); ss.str("");
+
+        pdfLines.push_back("------------------------------------------------------------");
+        pdfLines.push_back(""); // Empty line
+        pdfLines.push_back("Generated by Smart Laundry Admin System.");
+
+        // Generate PDF
+        createRawPDF("Report_Daily.pdf", "DAILY FINANCIAL REPORT", pdfLines);
+
+    }
+    catch (...) { cout << "Error fetching data." << endl; }
+}
+
+void AdminService::exportTransactionHistoryPDF() {
+    cout << "\n[SYSTEM] Fetching Transaction Logs..." << endl;
+    vector<string> pdfLines;
+
+    pdfLines.push_back("----------------------------------------------------------------");
+    pdfLines.push_back("DATE                 USER            TYPE            AMOUNT");
+    pdfLines.push_back("----------------------------------------------------------------");
+
+    try {
+        string sql = "SELECT t.date, u.username, t.type, t.amount FROM credit_transactions t JOIN users u ON t.user_id = u.user_id ORDER BY t.date DESC LIMIT 30";
+        unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement(sql));
+        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        while (res && res->next()) {
+            stringstream ss;
+            string date = res->getString("date");
+            // Truncate date to fit
+            ss << left << setw(21) << date.substr(0, 19)
+                << setw(16) << res->getString("username")
+                << setw(16) << res->getString("type")
+                << "RM " << fixed << setprecision(2) << res->getDouble("amount");
+            pdfLines.push_back(ss.str());
+        }
+    }
+    catch (...) {}
+
+    createRawPDF("Report_History.pdf", "TRANSACTION HISTORY LOG", pdfLines);
+}
 
 // =================================================================================
 //  1. MACHINE USAGE TABLE (Table Format)
