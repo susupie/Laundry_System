@@ -97,6 +97,15 @@ void AdminService::createRawPDF(string filename, string title, vector<string> li
 
     file.close();
     cout << "[SUCCESS] Report exported to '" << filename << "'" << endl;
+
+    cout << "Opening PDF..." << endl;
+
+    // Command: start "" "filename.pdf"
+    // We use quotes ("") to handle filenames with spaces safely.
+    string command = "start \"\" \"" + filename + "\"";
+
+    // Execute Windows Command
+    system(command.c_str());
 }
 
 // =================================================================================
@@ -111,8 +120,6 @@ void AdminService::createRawPDF(string filename, string title, vector<string> li
 #include <sstream>
 
 using namespace std;
-
-// ... (Keep getCurrentDate and createRawPDF as they are) ...
 
 // =================================================================================
 //  1. EXPORT SPECIFIC DATE REPORT
