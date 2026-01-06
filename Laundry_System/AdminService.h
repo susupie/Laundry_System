@@ -41,11 +41,11 @@ public:
     void viewSavedReports();
 
     void exportDailyReportPDF(std::string filename, std::string targetDate);
+    void showAvailableReportDates();
 
     // 2. Export Summary of ALL DATES (From 'reports' table)
     void exportAllHistoryPDF(std::string filename);
 
-    void exportTransactionHistoryPDF(std::string customFilename);
     // NEW: View the history saved in the 'reports' table
     void exportTransactionHistoryPDF();
 

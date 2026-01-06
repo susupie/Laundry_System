@@ -559,3 +559,39 @@ void AdminService::viewSavedReports() {
     }
     catch (...) {}
 }
+// ... inside AdminService_Reports.cpp ...
+
+// =================================================================================
+//  HELPER: DISPLAY AVAILABLE DATES
+// =================================================================================
+void AdminService::showAvailableReportDates() {
+    cout << "\n----------------------------------------------" << endl;
+    cout << "      AVAILABLE DATES (WITH DATA)             " << endl;
+    cout << "----------------------------------------------" << endl;
+
+    try {
+        // This query finds all unique dates from both tables
+        string sql = "SELECT DISTINCT DATE(dt) as date_val FROM "
+            "(SELECT start_time as dt FROM orders "
+            " UNION "
+            " SELECT date as dt FROM credit_transactions) as combined "
+            "ORDER BY date_val DESC LIMIT 15"; // Show last 15 active days
+
+        unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement(sql));
+        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        int count = 0;
+        while (res && res->next()) {
+            cout << "  > " << res->getString("date_val") << endl;
+            count++;
+        }
+
+        if (count == 0) {
+            cout << "  (No data found in database)" << endl;
+        }
+    }
+    catch (const exception& e) {
+        cout << "[Error fetching dates]: " << e.what() << endl;
+    }
+    cout << "----------------------------------------------" << endl;
+}

@@ -51,16 +51,15 @@ void SubMenu_Customers(AdminService& service) {
         }
         else if (choice == 2) {
             printSectionHeader("ADD NEW CUSTOMER");
-            string newUsername, newEmail, newPassword;
 
-            // Clear buffer
-            cin.ignore();
+            // Replaced raw getline with safe wrapper
+            string username = getValidatedString("Username : ");
+            string email = getValidatedString("Email    : ");
+            string password = getValidatedString("Password : ");
 
-            cout << "Username : "; getline(cin, newUsername);
-            cout << "Email    : "; getline(cin, newEmail);
-            cout << "Password : "; getline(cin, newPassword);
+            service.addCustomer(username, email, password);
 
-            service.addCustomer(newUsername, newEmail, newPassword);
+            cout << "\n(Press Enter to continue...)"; cin.get();
         }
         else if (choice == 3) {
             service.listCustomers(); // Show list first so they know ID
@@ -120,19 +119,19 @@ void SubMenu_Machines(AdminService& service) {
                 cout << "\n[FAILED] ID not found." << endl;
         }
         else if (choice == 3) {
-            string machineName, machineType;
-            int weightCapacity;
-            double cyclePrice;
-
             printSectionHeader("ADD NEW MACHINE");
-            cin.ignore();
 
-            cout << "Name (e.g. Washer A) : "; getline(cin, machineName);
-            cout << "Type (washer/dryer)  : "; cin >> machineType;
-            cout << "Weight Capacity (kg) : "; cin >> weightCapacity;
-            cout << "Price per Cycle (RM) : "; cin >> cyclePrice;
+            // Safe String Input
+            string name = getValidatedString("Name (e.g. Washer A) : ");
+            string type = getValidatedString("Type (washer/dryer)  : ");
 
-            service.addMachine(machineName, machineType, weightCapacity, cyclePrice);
+            // Safe Numeric Input (Prevents Crashing)
+            int weight = (int)getValidatedDouble("Weight Capacity (kg) : ");
+            double price = getValidatedDouble("Price per Cycle (RM) : ");
+
+            service.addMachine(name, type, weight, price);
+
+            cout << "\n(Press Enter to continue...)"; cin.get();
         }
         else if (choice == 4) {
             printSectionHeader("DELETE MACHINE");
@@ -203,11 +202,11 @@ void SubMenu_Reports(AdminService& service) {
         else if (choice == 4) service.report_RevenueTrendAnalysis();
         else if (choice == 5) {
             printSectionHeader("SEARCH DATABASE");
-            cout << "Enter Customer Username : ";
-            string s; cin >> s;
+            // No need for 'cin >> s', use the wrapper to prevent empty searches
+            string s = getValidatedString("Enter Customer Username : ");
             service.searchOrders(s);
         }
-        else if (choice == 6) {
+        else if (choice == 6) { // Export Menu
             printSectionHeader("EXPORT REPORTS TO PDF");
             cout << "1. Export Today's Report" << endl;
             cout << "2. Export Specific Date" << endl;
@@ -218,23 +217,26 @@ void SubMenu_Reports(AdminService& service) {
             int pdfChoice = getValidatedChoice(1, 4);
 
             if (pdfChoice == 1) {
-                cout << "Filename (e.g. today_sales): ";
-                string fname; cin >> fname;
-                // Pass "CURDATE()" to indicate today
+                string fname = getValidatedString("Filename: ");
                 service.exportDailyReportPDF(fname, "CURDATE()");
             }
             else if (pdfChoice == 2) {
-                cout << "Enter Date (YYYY-MM-DD): ";
+                // 1. Show the list of valid dates
+                service.showAvailableReportDates();
+
+                // 2. Now ask for input
+                cout << "Enter Date from list (YYYY-MM-DD): ";
                 string dateStr; cin >> dateStr;
-                cout << "Filename (e.g. old_report): ";
+
+                cout << "Filename to save as: ";
                 string fname; cin >> fname;
-                // Pass the specific date string
+
                 service.exportDailyReportPDF(fname, dateStr);
+                // --- UPDATE ENDS HERE ---
             }
             else if (pdfChoice == 3) {
                 cout << "Filename (e.g. full_history): ";
                 string fname; cin >> fname;
-                // Call the new All History function
                 service.exportAllHistoryPDF(fname);
             }
 
