@@ -185,10 +185,9 @@ void SubMenu_Reports(AdminService& service) {
         cout << "3. Revenue Bar Chart (Visual)" << endl;
         cout << "4. Revenue Trend Analysis (%)" << endl;
         cout << "5. Search Orders" << endl;
-        cout << "----------------------------------------------" << endl;
-        cout << "6. EXPORT Daily Report to PDF (Auto-Saves to DB)" << endl;
-        cout << "7. EXPORT Transaction History to PDF" << endl;
-        cout << "8. View Archived Past Reports (From DB)" << endl;
+        cout << "6. Export Daily Report to PDF" << endl;
+        cout << "7. Export Transaction History to PDF" << endl;
+        cout << "8. View Past Reports" << endl;
         cout << "9. Back" << endl;
         cout << "----------------------------------------------" << endl;
         cout << "Select Report > ";

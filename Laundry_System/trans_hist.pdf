@@ -1,0 +1,92 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+4 0 obj
+<< /Length 3600 >>
+stream
+BT
+/F1 24 Tf
+50 750 Td
+(TRANSACTION HISTORY LOG) Tj
+/F1 12 Tf
+0 -30 Td
+(Date: 2026-01-07) Tj
+0 -30 Td
+(----------------------------------------------------------------) Tj
+0 -15 Td
+(DATE                 USER            TYPE            AMOUNT) Tj
+0 -15 Td
+(----------------------------------------------------------------) Tj
+0 -15 Td
+(2026-01-02 10:20:00  siti_baker      Payment         RM 15.00) Tj
+0 -15 Td
+(2026-01-02 09:15:00  siti_baker      Payment         RM 20.00) Tj
+0 -15 Td
+(2026-01-02 09:00:00  siti_baker      TopUp           RM 50.00) Tj
+0 -15 Td
+(2025-12-24 22:15:00  ben_g           Payment         RM 10.00) Tj
+0 -15 Td
+(2025-12-24 22:00:00  ben_g           TopUp           RM 10.00) Tj
+0 -15 Td
+(2025-12-10 12:00:00  muthu_gym       TopUp           RM 50.00) Tj
+0 -15 Td
+(2025-12-01 10:10:00  muthu_gym       Payment         RM 15.00) Tj
+0 -15 Td
+(2025-12-01 09:00:00  muthu_gym       Payment         RM 20.00) Tj
+0 -15 Td
+(2025-12-01 08:30:00  jess_y          Payment         RM 20.00) Tj
+0 -15 Td
+(2025-12-01 08:00:00  jess_y          TopUp           RM 200.00) Tj
+0 -15 Td
+(2025-11-20 20:00:00  ali_xo          TopUp           RM 20.00) Tj
+0 -15 Td
+(2025-11-15 20:05:00  sarah_luv       Payment         RM 15.00) Tj
+0 -15 Td
+(2025-11-15 19:00:00  sarah_luv       Payment         RM 10.00) Tj
+0 -15 Td
+(2025-11-15 18:30:00  sarah_luv       TopUp           RM 100.00) Tj
+0 -15 Td
+(2025-11-02 12:20:00  ah_hock         Payment         RM 15.00) Tj
+0 -15 Td
+(2025-11-02 11:15:00  ah_hock         Payment         RM 20.00) Tj
+0 -15 Td
+(2025-11-02 11:00:00  ah_hock         TopUp           RM 50.00) Tj
+0 -15 Td
+(2025-10-25 09:00:00  muthu_gym       TopUp           RM 100.00) Tj
+0 -15 Td
+(2025-10-12 14:30:00  siti_baker      Payment         RM 20.00) Tj
+0 -15 Td
+(2025-10-12 14:15:00  siti_baker      TopUp           RM 20.00) Tj
+0 -15 Td
+(2025-10-05 12:10:00  ali_xo          Payment         RM 15.00) Tj
+0 -15 Td
+(2025-10-05 11:00:00  ali_xo          Payment         RM 10.00) Tj
+0 -15 Td
+(2025-10-05 10:30:00  ali_xo          TopUp           RM 50.00) Tj
+0 -15 Td
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000060 00000 n 
+0000000110 00000 n 
+0000000300 00000 n 
+0000000200 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+400
+%%EOF

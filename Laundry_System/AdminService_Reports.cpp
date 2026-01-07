@@ -566,7 +566,7 @@ void AdminService::viewSavedReports() {
 // =================================================================================
 void AdminService::showAvailableReportDates() {
     cout << "\n----------------------------------------------" << endl;
-    cout << "      AVAILABLE DATES (WITH DATA)             " << endl;
+    cout << "                  AVAILABLE DATES              " << endl;
     cout << "----------------------------------------------" << endl;
 
     try {
