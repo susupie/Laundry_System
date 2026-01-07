@@ -8,8 +8,6 @@
 
 using namespace std;
 
-// --- VISUAL HELPERS ---
-
 // 1. Just prints the title box (NO CLEAR SCREEN)
 void printHeader(string title) {
     cout << "\n"; // Extra space to separate from previous action
