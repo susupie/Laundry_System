@@ -263,35 +263,6 @@ void AdminService::exportTransactionHistoryPDF(string customFilename) {
     createRawPDF(customFilename, "TRANSACTION HISTORY LOG", pdfLines);
 }
 
-void AdminService::exportTransactionHistoryPDF() {
-    cout << "\n[SYSTEM] Fetching Transaction Logs..." << endl;
-    vector<string> pdfLines;
-
-    pdfLines.push_back("----------------------------------------------------------------");
-    pdfLines.push_back("DATE                 USER            TYPE            AMOUNT");
-    pdfLines.push_back("----------------------------------------------------------------");
-
-    try {
-        string sql = "SELECT t.date, u.username, t.type, t.amount FROM credit_transactions t JOIN users u ON t.user_id = u.user_id ORDER BY t.date DESC LIMIT 30";
-        unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement(sql));
-        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        while (res && res->next()) {
-            stringstream ss;
-            string date = res->getString("date");
-            // Truncate date to fit
-            ss << left << setw(21) << date.substr(0, 19)
-                << setw(16) << res->getString("username")
-                << setw(16) << res->getString("type")
-                << "RM " << fixed << setprecision(2) << res->getDouble("amount");
-            pdfLines.push_back(ss.str());
-        }
-    }
-    catch (...) {}
-
-    createRawPDF("Report_History.pdf", "TRANSACTION HISTORY LOG", pdfLines);
-}
-
 // =================================================================================
 //  1. MACHINE USAGE TABLE (Table Format)
 // =================================================================================
