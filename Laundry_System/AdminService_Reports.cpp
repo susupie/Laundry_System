@@ -3,17 +3,9 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-
-using namespace std;
-
-#include "AdminService.h"
-#include <iostream>
-#include <iomanip>
 #include <fstream>
-#include <vector>
 #include <ctime>
 #include <sstream>
-
 using namespace std;
 
 // --- HELPER: Get Date ---
@@ -29,9 +21,7 @@ string AdminService::getCurrentDate() {
     return string(buf);
 }
 
-// =================================================================================
-//  THE "PURE C++" PDF GENERATOR ENGINE
-// =================================================================================
+//  PURE C++ PDF GENERATOR 
 void AdminService::createRawPDF(string filename, string title, vector<string> lines) {
     ofstream file(filename);
     if (!file.is_open()) {
@@ -107,26 +97,12 @@ void AdminService::createRawPDF(string filename, string title, vector<string> li
     // Execute Windows Command
     system(command.c_str());
 }
-
-// =================================================================================
-//  EXPORT FUNCTIONS (Prepare Data -> Call PDF Engine)
-// =================================================================================
-#include "AdminService.h"
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <vector>
-#include <ctime>
-#include <sstream>
-
-using namespace std;
-
 // =================================================================================
 //  1. EXPORT SPECIFIC DATE REPORT
 // =================================================================================
 void AdminService::exportDailyReportPDF(string filename, string targetDate) {
 
-    // If user requests "TODAY", we first save to DB to ensure data is fresh
+    //save daily record to database
     if (targetDate == "CURDATE()") {
         saveDailyReportToDB();
     }
