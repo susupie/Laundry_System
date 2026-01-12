@@ -1,544 +1,284 @@
 #include "AdminService.h"
 #include <iostream>
 #include <iomanip>
-#include <string>
-#include <vector>
 #include <fstream>
+#include <vector>
 #include <ctime>
 #include <sstream>
+
 using namespace std;
 
-// --- HELPER: Get Date ---
 string AdminService::getCurrentDate() {
-    time_t now = time(0);
-    struct tm tstruct;
-    char buf[80];
-
-    // NEW WAY (Visual Studio Safe):
-    localtime_s(&tstruct, &now);
-
-    strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
+    time_t now = time(0); struct tm tstruct; char buf[80];
+    localtime_s(&tstruct, &now); strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
     return string(buf);
 }
 
-//  PURE C++ PDF GENERATOR 
+// --- PDF ENGINE ---
 void AdminService::createRawPDF(string filename, string title, vector<string> lines) {
     ofstream file(filename);
-    if (!file.is_open()) {
-        cout << "[ERROR] Could not create PDF file." << endl;
-        return;
-    }
-
-    // 1. PDF Header
-    file << "%PDF-1.4\n";
-
-    // 2. Object 1: Catalog
-    file << "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
-
-    // 3. Object 2: Pages (Root)
+    if (!file.is_open()) return;
+    // Increased Page Height to 5000 to prevent cutoff
+    file << "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
     file << "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
-
-    // 4. Object 3: Page Definition
-    file << "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n";
-
-    // 5. Object 5: Font Definition (Helvetica)
+    file << "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 5000] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n";
     file << "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>\nendobj\n";
-
-    // 6. Object 4: The Content Stream (Where text goes)
-    file << "4 0 obj\n<< /Length " << (1000 + lines.size() * 100) << " >>\nstream\n";
-
-    // Start Text Block
-    file << "BT\n";
-    file << "/F1 24 Tf\n";      // Font Size 24 (Title)
-    file << "50 750 Td\n";      // Position Top-Left (x=50, y=750)
-    file << "(" << title << ") Tj\n"; // Write Title
-
-    file << "/F1 12 Tf\n";      // Font Size 12 (Body)
-    file << "0 -30 Td\n";       // Move down 30 units
-    file << "(Date: " << getCurrentDate() << ") Tj\n";
-    file << "0 -30 Td\n";       // Move down another 30 units for content
-
-    // Loop through the data lines and write them
-    for (const string& line : lines) {
-        // Escape parentheses ( ) because PDF uses them for strings
-        string safeLine = line;
-        // (In a full app, you'd replace '(' with '\(' etc., but basic text is fine)
-
-        file << "(" << safeLine << ") Tj\n"; // Write line
-        file << "0 -15 Td\n";                // Move down 15 units (Next line)
-    }
-
-    file << "ET\n"; // End Text Block
-    file << "endstream\nendobj\n";
-
-    // 7. Cross-Reference Table (Simplified)
-    file << "xref\n";
-    file << "0 6\n";
-    file << "0000000000 65535 f \n";
-    file << "0000000010 00000 n \n"; // Obj 1
-    file << "0000000060 00000 n \n"; // Obj 2
-    file << "0000000110 00000 n \n"; // Obj 3
-    file << "0000000300 00000 n \n"; // Obj 4 (Content)
-    file << "0000000200 00000 n \n"; // Obj 5 (Font)
-
-    // 8. Trailer
-    file << "trailer\n<< /Size 6 /Root 1 0 R >>\n";
-    file << "startxref\n400\n%%EOF\n";
-
+    file << "4 0 obj\n<< /Length " << (2000 + lines.size() * 100) << " >>\nstream\n";
+    file << "BT\n/F1 20 Tf\n50 4900 Td\n(" << title << ") Tj\n/F1 9 Tf\n0 -30 Td\n(Generated: " << getCurrentDate() << ") Tj\n0 -30 Td\n";
+    for (const string& line : lines) { file << "(" << line << ") Tj\n0 -12 Td\n"; }
+    file << "ET\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000010 00000 n \n0000000060 00000 n \n0000000110 00000 n \n0000000300 00000 n \n0000000200 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n400\n%%EOF\n";
     file.close();
-    cout << "[SUCCESS] Report exported to '" << filename << "'" << endl;
-
-    cout << "Opening PDF..." << endl;
-
-    // Command: start "" "filename.pdf"
-    // We use quotes ("") to handle filenames with spaces safely.
-    string command = "start \"\" \"" + filename + "\"";
-
-    // Execute Windows Command
-    system(command.c_str());
-}
-// =================================================================================
-//  1. EXPORT SPECIFIC DATE REPORT
-// =================================================================================
-void AdminService::exportDailyReportPDF(string filename, string targetDate) {
-
-    //save daily record to database
-    if (targetDate == "CURDATE()") {
-        saveDailyReportToDB();
-    }
-
-    cout << "\n[SYSTEM] Generating PDF for date: " << (targetDate == "CURDATE()" ? "TODAY" : targetDate) << "..." << endl;
-
-    if (filename.length() < 4 || filename.substr(filename.length() - 4) != ".pdf") {
-        filename += ".pdf";
-    }
-
-    vector<string> pdfLines;
-
-    try {
-        double totalRev = 0, totalTopup = 0;
-        int totalOrders = 0;
-
-        // SQL: Use the targetDate parameter instead of hardcoded CURDATE()
-        // If targetDate is "CURDATE()", MySQL understands it. 
-        // If it's "2025-10-05", we need quotes.
-
-        string dateClause = (targetDate == "CURDATE()") ? "CURDATE()" : "'" + targetDate + "'";
-
-        // 1. Revenue
-        string sql1 = "SELECT COALESCE(SUM(cost),0) FROM orders WHERE DATE(start_time) = " + dateClause;
-        unique_ptr<sql::PreparedStatement> pst1(db_connection->prepareStatement(sql1));
-        unique_ptr<sql::ResultSet> rs1(pst1->executeQuery());
-        if (rs1->next()) totalRev = rs1->getDouble(1);
-
-        // 2. Top-Ups
-        string sql2 = "SELECT COALESCE(SUM(amount),0) FROM credit_transactions WHERE type='TopUp' AND DATE(date) = " + dateClause;
-        unique_ptr<sql::PreparedStatement> pst2(db_connection->prepareStatement(sql2));
-        unique_ptr<sql::ResultSet> rs2(pst2->executeQuery());
-        if (rs2->next()) totalTopup = rs2->getDouble(1);
-
-        // 3. Orders Count
-        string sql3 = "SELECT COUNT(*) FROM orders WHERE DATE(start_time) = " + dateClause;
-        unique_ptr<sql::PreparedStatement> pst3(db_connection->prepareStatement(sql3));
-        unique_ptr<sql::ResultSet> rs3(pst3->executeQuery());
-        if (rs3->next()) totalOrders = rs3->getInt(1);
-
-        // --- FORMATTING PDF ---
-        pdfLines.push_back("REPORT DATE: " + (targetDate == "CURDATE()" ? getCurrentDate() : targetDate));
-        pdfLines.push_back("------------------------------------------------------------");
-        pdfLines.push_back("METRIC                          VALUE");
-        pdfLines.push_back("------------------------------------------------------------");
-
-        stringstream ss;
-        ss << left << setw(32) << "Total Revenue" << "RM " << fixed << setprecision(2) << totalRev;
-        pdfLines.push_back(ss.str()); ss.str("");
-
-        ss << left << setw(32) << "Total Top-Ups Collected" << "RM " << fixed << setprecision(2) << totalTopup;
-        pdfLines.push_back(ss.str()); ss.str("");
-
-        ss << left << setw(32) << "Total Orders Processed" << totalOrders;
-        pdfLines.push_back(ss.str()); ss.str("");
-
-        pdfLines.push_back("------------------------------------------------------------");
-
-        // Add Machine Breakdown for that specific day
-        pdfLines.push_back("");
-        pdfLines.push_back("MACHINE BREAKDOWN:");
-
-        string sqlMac = "SELECT m.machine_name, COUNT(*) FROM orders o JOIN machines m ON o.machine_id = m.machine_id WHERE DATE(start_time) = " + dateClause + " GROUP BY m.machine_name";
-        unique_ptr<sql::PreparedStatement> pstM(db_connection->prepareStatement(sqlMac));
-        unique_ptr<sql::ResultSet> rsM(pstM->executeQuery());
-
-        while (rsM->next()) {
-            ss << " - " << left << setw(20) << rsM->getString(1) << rsM->getInt(2) << " Cycles";
-            pdfLines.push_back(ss.str()); ss.str("");
-        }
-
-        createRawPDF(filename, "FINANCIAL REPORT", pdfLines);
-
-    }
-    catch (const exception& e) {
-        cout << "[ERROR] Invalid Date Format or DB Error: " << e.what() << endl;
-    }
+    cout << "[SUCCESS] Saved '" << filename << "'" << endl;
+    string cmd = "start \"\" \"" + filename + "\""; system(cmd.c_str());
 }
 
-// =================================================================================
-//  2. EXPORT ALL HISTORY (SUMMARY OF ALL DAYS)
-// =================================================================================
-void AdminService::exportAllHistoryPDF(string filename) {
-    cout << "\n[SYSTEM] Generating Full History Report..." << endl;
-
-    if (filename.length() < 4 || filename.substr(filename.length() - 4) != ".pdf") {
-        filename += ".pdf";
-    }
-
-    vector<string> pdfLines;
-    pdfLines.push_back("----------------------------------------------------------------");
-    pdfLines.push_back("DATE            REVENUE         TOP-UPS         ORDERS");
-    pdfLines.push_back("----------------------------------------------------------------");
-
-    try {
-        // We read from the 'reports' table which stores the daily archives
-        unique_ptr<sql::PreparedStatement> pstmt(
-            db_connection->prepareStatement("SELECT * FROM reports ORDER BY report_date DESC")
-        );
-        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        double grandTotalRev = 0;
-
-        while (res && res->next()) {
-            double rev = res->getDouble("total_revenue");
-            double top = res->getDouble("total_topups");
-            grandTotalRev += rev;
-
-            stringstream ss;
-            ss << left << setw(16) << res->getString("report_date")
-                << "RM " << setw(13) << fixed << setprecision(2) << rev
-                << "RM " << setw(13) << top
-                << res->getInt("total_orders");
-            pdfLines.push_back(ss.str());
-        }
-
-        pdfLines.push_back("----------------------------------------------------------------");
-        stringstream foot;
-        foot << "GRAND TOTAL REVENUE: RM " << fixed << setprecision(2) << grandTotalRev;
-        pdfLines.push_back(foot.str());
-
-    }
-    catch (...) {}
-
-    createRawPDF(filename, "FULL BUSINESS HISTORY", pdfLines);
-}
-
-void AdminService::exportTransactionHistoryPDF(string customFilename) {
-    cout << "\n[SYSTEM] Generating PDF Document..." << endl;
-
-    // Handle Extension
-    if (customFilename.length() < 4 || customFilename.substr(customFilename.length() - 4) != ".pdf") {
-        customFilename += ".pdf";
-    }
-
-    vector<string> pdfLines;
-    pdfLines.push_back("----------------------------------------------------------------");
-    pdfLines.push_back("DATE                 USER            TYPE            AMOUNT");
-    pdfLines.push_back("----------------------------------------------------------------");
-
-    try {
-        string sql = "SELECT t.date, u.username, t.type, t.amount FROM credit_transactions t JOIN users u ON t.user_id = u.user_id ORDER BY t.date DESC LIMIT 40";
-        unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement(sql));
-        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        while (res && res->next()) {
-            stringstream ss;
-            string date = res->getString("date");
-            ss << left << setw(21) << date.substr(0, 19)
-                << setw(16) << res->getString("username")
-                << setw(16) << res->getString("type")
-                << "RM " << fixed << setprecision(2) << res->getDouble("amount");
-            pdfLines.push_back(ss.str());
-        }
-    }
-    catch (...) {}
-
-    createRawPDF(customFilename, "TRANSACTION HISTORY LOG", pdfLines);
-}
-
-// =================================================================================
-//  1. MACHINE USAGE TABLE (Table Format)
-// =================================================================================
+// --- 1. MACHINE USAGE TABLE (Fixed: Shows ALL machines now) ---
 void AdminService::report_MachineUsageTable() {
     try {
-        unique_ptr<sql::PreparedStatement> pstmt(
-            db_connection->prepareStatement(
-                "SELECT m.machine_name, COUNT(o.order_id) as Cycles, SUM(o.cost) as Revenue "
-                "FROM orders o "
-                "JOIN machines m ON o.machine_id = m.machine_id "
-                "GROUP BY m.machine_name"
-            )
-        );
-        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        // LEFT JOIN machines to orders ensures machines with 0 orders still show up
+        string sql = "SELECT m.machine_name, COUNT(o.order_id) as c, COALESCE(SUM(o.cost), 0.00) as r "
+            "FROM machines m "
+            "LEFT JOIN orders o ON m.machine_id = o.machine_id "
+            "GROUP BY m.machine_name ORDER BY m.type DESC, m.machine_name ASC";
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement(sql));
+        unique_ptr<sql::ResultSet> r(p->executeQuery());
 
-        cout << "\n1. Machine Performance Table:\n" << endl;
-
-        // ASCII Border
-        cout << "+----------------------+----------+---------------+" << endl;
-        cout << "| Machine Name         | Cycles   | Total Revenue |" << endl;
-        cout << "+----------------------+----------+---------------+" << endl;
-
-        while (res && res->next()) {
-            string name = res->getString("machine_name");
-            int cycles = res->getInt("Cycles");
-            double rev = res->getDouble("Revenue");
-
-            cout << "| " << left << setw(20) << name
-                << " | " << left << setw(8) << cycles
-                << " | RM" << left << setw(11) << fixed << setprecision(2) << rev << " |" << endl;
+        cout << "\n------------------ MACHINE PERFORMANCE TABLE ------------------" << endl;
+        cout << "| " << left << setw(20) << "Machine Name" << " | " << setw(10) << "Cycles" << " | " << setw(15) << "Total Revenue" << " |" << endl;
+        cout << "+----------------------+------------+-----------------+" << endl;
+        while (r->next()) {
+            cout << "| " << left << setw(20) << r->getString(1)
+                << " | " << setw(10) << r->getInt(2)
+                << " | RM " << setw(12) << fixed << setprecision(2) << r->getDouble(3) << " |" << endl;
         }
-
-        cout << "+----------------------+----------+---------------+" << endl;
-
-    }
-    catch (const exception& e) {
-        cerr << "Error generating table: " << e.what() << endl;
-    }
-}
-
-// =================================================================================
-//  2. FINANCIAL SUMMARY (Key Metrics List)
-// =================================================================================
-void AdminService::report_FinancialSummary() {
-    try {
-        double totalRev = 0, totalTopup = 0;
-
-        // Get Revenue
-        unique_ptr<sql::PreparedStatement> pst1(db_connection->prepareStatement("SELECT SUM(cost) FROM orders"));
-        unique_ptr<sql::ResultSet> res1(pst1->executeQuery());
-        if (res1->next()) totalRev = res1->getDouble(1);
-
-        // Get TopUps
-        unique_ptr<sql::PreparedStatement> pst2(db_connection->prepareStatement("SELECT SUM(amount) FROM credit_transactions WHERE type='TopUp'"));
-        unique_ptr<sql::ResultSet> res2(pst2->executeQuery());
-        if (res2->next()) totalTopup = res2->getDouble(1);
-
-        cout << "\n2. Financial Summary List:\n" << endl;
-
-        cout << "  1. Total Laundry Revenue : RM" << fixed << setprecision(2) << totalRev << endl;
-        cout << "  2. Total Wallet Top-Ups  : RM" << totalTopup << endl;
-
-        // Calculate "Float" (Money held in user wallets but not spent)
-        double netHoldings = totalTopup - totalRev;
-        cout << "  3. Net Float (Unspent)   : RM" << netHoldings << endl;
-
-    }
-    catch (const exception& e) {
-        cerr << "Error generating summary: " << e.what() << endl;
-    }
-}
-
-// =================================================================================
-//  3. REVENUE BAR CHART (Text-Based)
-// =================================================================================
-void AdminService::report_RevenueBarChart() {
-    try {
-        // Group by Date (Daily Revenue)
-        unique_ptr<sql::PreparedStatement> pstmt(
-            db_connection->prepareStatement(
-                "SELECT DATE(start_time) as dt, SUM(cost) as daily_sales "
-                "FROM orders GROUP BY DATE(start_time) ORDER BY dt DESC LIMIT 5"
-            )
-        );
-        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        cout << "\n3. Daily Revenue Bar Chart:\n" << endl;
-
-        while (res && res->next()) {
-            string date = res->getString("dt");
-            double sales = res->getDouble("daily_sales");
-
-            cout << "  " << left << setw(12) << date << " : ";
-
-            // Logic: 1 Star (*) per RM10 earned
-            int barLength = static_cast<int>(sales / 10.0);
-            if (barLength == 0 && sales > 0) barLength = 1; // At least one star if any sale
-
-            for (int i = 0; i < barLength; i++) cout << "*"; // The "Bar"
-
-            cout << " (RM" << fixed << setprecision(2) << sales << ")" << endl;
-        }
-
-    }
-    catch (const exception& e) {
-        cerr << "Error generating chart: " << e.what() << endl;
-    }
-}
-
-// =================================================================================
-//  4. REVENUE TREND ANALYSIS (Graph Summary / % Change)
-// =================================================================================
-void AdminService::report_RevenueTrendAnalysis() {
-    try {
-        // Fetch daily sales, ordered by date ascending for comparison
-        unique_ptr<sql::PreparedStatement> pstmt(
-            db_connection->prepareStatement(
-                "SELECT DATE(start_time) as dt, SUM(cost) as daily_sales "
-                "FROM orders GROUP BY DATE(start_time) ORDER BY dt ASC"
-            )
-        );
-        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        cout << "\n4. Revenue Trend Summary (% Change):\n" << endl;
-
-        double prevSales = 0.0;
-        bool firstRow = true;
-
-        while (res && res->next()) {
-            string date = res->getString("dt");
-            double currentSales = res->getDouble("daily_sales");
-
-            cout << "  Date " << left << setw(12) << date << " Sales: RM" << fixed << setprecision(2) << currentSales;
-
-            if (!firstRow && prevSales > 0) {
-                // Calculate Percentage Change
-                double change = ((currentSales - prevSales) / prevSales) * 100.0;
-
-                cout << " (";
-                if (change > 0) cout << "+" << (int)change << "% increase";
-                else if (change < 0) cout << (int)change << "% decrease";
-                else cout << "0% change";
-                cout << ")";
-            }
-            else if (!firstRow && prevSales == 0) {
-                cout << " (+100% new revenue)";
-            }
-
-            cout << endl;
-            prevSales = currentSales;
-            firstRow = false;
-        }
-
-    }
-    catch (const exception& e) {
-        cerr << "Error generating trend: " << e.what() << endl;
-    }
-}
-
-// --- NEW: SAVE TODAY'S REPORT TO DB ---
-void AdminService::saveDailyReportToDB() {
-    cout << "\n[SYSTEM] Calculating totals for today..." << endl;
-
-    double totalTopup = 0.0;
-    double totalRevenue = 0.0;
-    int totalOrders = 0;
-
-    try {
-        // 1. Calculate Top-Ups
-        unique_ptr<sql::PreparedStatement> pst1(
-            db_connection->prepareStatement("SELECT COALESCE(SUM(amount), 0.00) FROM credit_transactions WHERE type = 'TopUp' AND DATE(date) = CURDATE()")
-        );
-        unique_ptr<sql::ResultSet> res1(pst1->executeQuery());
-        if (res1->next()) totalTopup = res1->getDouble(1);
-
-        // 2. Calculate Revenue
-        unique_ptr<sql::PreparedStatement> pst2(
-            db_connection->prepareStatement("SELECT COALESCE(SUM(cost), 0.00) FROM orders WHERE DATE(start_time) = CURDATE()")
-        );
-        unique_ptr<sql::ResultSet> res2(pst2->executeQuery());
-        if (res2->next()) totalRevenue = res2->getDouble(1);
-
-        // 3. Count Orders
-        unique_ptr<sql::PreparedStatement> pst3(
-            db_connection->prepareStatement("SELECT COUNT(*) FROM orders WHERE DATE(start_time) = CURDATE()")
-        );
-        unique_ptr<sql::ResultSet> res3(pst3->executeQuery());
-        if (res3->next()) totalOrders = res3->getInt(1);
-
-        // 4. INSERT INTO REPORTS TABLE (The "Save" Action)
-        // ON DUPLICATE KEY UPDATE means: If a report for Today already exists, update it.
-        unique_ptr<sql::PreparedStatement> pstInsert(
-            db_connection->prepareStatement(
-                "INSERT INTO reports (report_date, total_topups, total_revenue, total_orders) "
-                "VALUES (CURDATE(), ?, ?, ?) "
-                "ON DUPLICATE KEY UPDATE "
-                "total_topups = VALUES(total_topups), "
-                "total_revenue = VALUES(total_revenue), "
-                "total_orders = VALUES(total_orders)"
-            )
-        );
-        pstInsert->setDouble(1, totalTopup);
-        pstInsert->setDouble(2, totalRevenue);
-        pstInsert->setInt(3, totalOrders);
-        pstInsert->executeUpdate();
-
-        cout << "[SUCCESS] Report for TODAY saved successfully." << endl;
-        cout << "Stats archived: Revenue RM " << totalRevenue << " | TopUps RM " << totalTopup << endl;
-
-    }
-    catch (const exception& e) {
-        cerr << "[ERROR] Could not save report: " << e.what() << endl;
-    }
-}
-
-// --- NEW: VIEW PAST REPORTS ---
-void AdminService::viewSavedReports() {
-    try {
-        unique_ptr<sql::PreparedStatement> pstmt(
-            db_connection->prepareStatement("SELECT * FROM reports ORDER BY report_date DESC LIMIT 15")
-        );
-        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        cout << "\n================= ARCHIVED DAILY REPORTS =================" << endl;
-        cout << left << setw(15) << "Date"
-            << setw(15) << "Top-Ups"
-            << setw(15) << "Revenue"
-            << "Orders" << endl;
-        cout << "----------------------------------------------------------" << endl;
-
-        bool found = false;
-        while (res && res->next()) {
-            found = true;
-            cout << left << setw(15) << res->getString("report_date")
-                << "RM " << setw(12) << fixed << setprecision(2) << res->getDouble("total_topups")
-                << "RM " << setw(12) << res->getDouble("total_revenue")
-                << res->getInt("total_orders") << endl;
-        }
-        if (!found) cout << "No archived reports found." << endl;
-        cout << "==========================================================" << endl;
+        cout << "+----------------------+------------+-----------------+" << endl;
     }
     catch (...) {}
 }
-// ... inside AdminService_Reports.cpp ...
 
-// =================================================================================
-//  HELPER: DISPLAY AVAILABLE DATES
-// =================================================================================
-void AdminService::showAvailableReportDates() {
-    cout << "\n----------------------------------------------" << endl;
-    cout << "                  AVAILABLE DATES              " << endl;
-    cout << "----------------------------------------------" << endl;
+// --- 4. SALES SUMMARY (New: Profit Margin Style) ---
+// 1. CONSOLE: SALES SUMMARY
+void AdminService::report_SalesSummary() {
+    try {
+        double totalRev = 0, totalTopup = 0;
+        int totalCycles = 0;
+
+        // Get Revenue
+        unique_ptr<sql::PreparedStatement> p1(db_connection->prepareStatement("SELECT COALESCE(SUM(cost),0) FROM orders"));
+        unique_ptr<sql::ResultSet> r1(p1->executeQuery()); if (r1->next()) totalRev = r1->getDouble(1);
+
+        // Get TopUp
+        unique_ptr<sql::PreparedStatement> p2(db_connection->prepareStatement("SELECT COALESCE(SUM(amount),0) FROM credit_transactions WHERE type='TopUp'"));
+        unique_ptr<sql::ResultSet> r2(p2->executeQuery()); if (r2->next()) totalTopup = r2->getDouble(1);
+
+        // Get Total Cycles (To calculate expense)
+        unique_ptr<sql::PreparedStatement> p3(db_connection->prepareStatement("SELECT COUNT(*) FROM orders"));
+        unique_ptr<sql::ResultSet> r3(p3->executeQuery()); if (r3->next()) totalCycles = r3->getInt(1);
+
+        // --- CALCULATION LOGIC ---
+        // Assumption: Each wash/dry costs RM 3.50 in utilities (Water/Electricity)
+        double costPerCycle = 3.50;
+        double totalExpenses = totalCycles * costPerCycle;
+
+        double netProfit = totalRev - totalExpenses;
+        double profitMargin = (totalRev > 0) ? (netProfit / totalRev) * 100.0 : 0.0;
+
+        cout << "\n--------------------------------------------------" << endl;
+        cout << "                SALES SUMMARY                     " << endl;
+        cout << "--------------------------------------------------" << endl;
+        cout << "\n1. Total Laundry Sales   : RM " << fixed << setprecision(2) << totalRev << endl;
+        cout << "2. Total Wallet Deposits : RM " << totalTopup << endl;
+        cout << "--------------------------------------------------" << endl;
+        cout << "3. Est. Utility Cost     : RM " << totalExpenses << " (RM 3.50/cycle)" << endl;
+        cout << "4. NET PROFIT            : RM " << netProfit << endl;
+        cout << "5. PROFIT MARGIN         : " << (int)profitMargin << "%" << endl;
+        cout << "\n--------------------------------------------------" << endl;
+    }
+    catch (...) {}
+}
+
+
+// --- HELPER: GET DATES FOR MENU ---
+vector<string> AdminService::getAvailableReportDates() {
+    vector<string> dates;
+    try {
+        string sql = "SELECT DISTINCT DATE(dt) as d FROM (SELECT start_time as dt FROM orders UNION SELECT date as dt FROM credit_transactions) as c ORDER BY d DESC LIMIT 10";
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement(sql));
+        unique_ptr<sql::ResultSet> r(p->executeQuery());
+        while (r->next()) dates.push_back(r->getString(1));
+    }
+    catch (...) {}
+    return dates;
+}
+
+// 2. PDF: DAILY REPORT
+void AdminService::exportDailyReportPDF(string filename, string targetDate) {
+    if (filename.length() < 4 || filename.substr(filename.length() - 4) != ".pdf") filename += ".pdf";
+    string dateClause = (targetDate == "CURDATE()") ? "CURDATE()" : "'" + targetDate + "'";
+
+    if (targetDate == "CURDATE()") saveDailyReportToDB();
+
+    vector<string> lines;
+    lines.push_back("DATE: " + (targetDate == "CURDATE()" ? getCurrentDate() : targetDate));
+    lines.push_back("-----------------------------------------------------------------");
 
     try {
-        // This query finds all unique dates from both tables
-        string sql = "SELECT DISTINCT DATE(dt) as date_val FROM "
-            "(SELECT start_time as dt FROM orders "
-            " UNION "
-            " SELECT date as dt FROM credit_transactions) as combined "
-            "ORDER BY date_val DESC LIMIT 15"; // Show last 15 active days
+        // Fetch Revenue & Topups
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT COALESCE(SUM(cost),0), (SELECT COALESCE(SUM(amount),0) FROM credit_transactions WHERE type='TopUp' AND DATE(date)=" + dateClause + ") FROM orders WHERE DATE(start_time)=" + dateClause));
+        unique_ptr<sql::ResultSet> r(p->executeQuery()); r->next();
+        double rev = r->getDouble(1);
+        double top = r->getDouble(2);
 
-        unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement(sql));
-        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        // Fetch Cycle Count
+        unique_ptr<sql::PreparedStatement> pCount(db_connection->prepareStatement("SELECT COUNT(*) FROM orders WHERE DATE(start_time)=" + dateClause));
+        unique_ptr<sql::ResultSet> rCount(pCount->executeQuery()); rCount->next();
+        int cycles = rCount->getInt(1);
 
-        int count = 0;
-        while (res && res->next()) {
-            cout << "  > " << res->getString("date_val") << endl;
-            count++;
+        // --- CALCULATE PROFIT ---
+        double expensePerCycle = 3.50; // Cost of water/electricity per machine use
+        double totalExpense = cycles * expensePerCycle;
+        double netProfit = rev - totalExpense;
+        double margin = (rev > 0) ? (netProfit / rev) * 100.0 : 0.0;
+
+        stringstream ss;
+        ss << "REVENUE TODAY       : RM " << fixed << setprecision(2) << rev; lines.push_back(ss.str()); ss.str("");
+        ss << "TOP-UPS COLLECTED   : RM " << top; lines.push_back(ss.str()); ss.str("");
+        ss << "TOTAL CYCLES        : " << cycles; lines.push_back(ss.str()); ss.str("");
+
+        lines.push_back("-----------------------------------------------------------------");
+
+        ss << "EST. UTILITY COST   : RM " << totalExpense << " (Based on RM 3.50/cycle)"; lines.push_back(ss.str()); ss.str("");
+        ss << "NET PROFIT          : RM " << netProfit; lines.push_back(ss.str()); ss.str("");
+        ss << "PROFIT MARGIN       : " << (int)margin << "%"; lines.push_back(ss.str());
+
+        lines.push_back(""); lines.push_back("MACHINE BREAKDOWN:");
+        lines.push_back("-----------------------------------------------------------------");
+
+        string sqlM = "SELECT m.machine_name, COUNT(o.order_id), COALESCE(SUM(o.cost), 0) "
+            "FROM machines m LEFT JOIN orders o ON m.machine_id = o.machine_id "
+            "AND DATE(o.start_time)=" + dateClause + " GROUP BY m.machine_name ORDER BY m.type DESC";
+
+        unique_ptr<sql::PreparedStatement> pm(db_connection->prepareStatement(sqlM));
+        unique_ptr<sql::ResultSet> rm(pm->executeQuery());
+        while (rm->next()) {
+            stringstream sm;
+            sm << left << setw(20) << rm->getString(1) << " : " << rm->getInt(2) << " Cycles (RM " << rm->getDouble(3) << ")";
+            lines.push_back(sm.str());
         }
 
-        if (count == 0) {
-            cout << "  (No data found in database)" << endl;
+    }
+    catch (...) {}
+    createRawPDF(filename, "DAILY SUMMARY REPORT", lines);
+}
+
+// --- PDF: MASTER REPORT (All History + Fixed Join) ---
+void AdminService::exportMasterReportPDF(string filename) {
+    if (filename.length() < 4 || filename.substr(filename.length() - 4) != ".pdf") filename += ".pdf";
+    cout << "\n[SYSTEM] Compiling Master Report..." << endl;
+    vector<string> lines;
+
+    // SECTION 1: MACHINE BREAKDOWN (FIXED LEFT JOIN)
+    lines.push_back("SECTION 1: MACHINE BREAKDOWN (All Time)");
+    lines.push_back("MACHINE NAME          TYPE        CYCLES      TOTAL EARNED");
+    lines.push_back("-----------------------------------------------------------------");
+    try {
+        string sql = "SELECT m.machine_name, m.type, COUNT(o.order_id), COALESCE(SUM(o.cost),0) "
+            "FROM machines m LEFT JOIN orders o ON m.machine_id=o.machine_id "
+            "GROUP BY m.machine_name ORDER BY m.type DESC";
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement(sql));
+        unique_ptr<sql::ResultSet> r(p->executeQuery());
+        while (r && r->next()) {
+            stringstream ss;
+            ss << left << setw(22) << r->getString(1) << setw(12) << r->getString(2) << setw(12) << r->getInt(3) << "RM " << r->getDouble(4);
+            lines.push_back(ss.str());
         }
     }
-    catch (const exception& e) {
-        cout << "[Error fetching dates]: " << e.what() << endl;
+    catch (...) {}
+    lines.push_back("");
+
+    // SECTION 2: HISTORY
+    lines.push_back("SECTION 2: FULL BUSINESS HISTORY");
+    lines.push_back("DATE            REVENUE       TOP-UPS       ORDERS");
+    lines.push_back("-----------------------------------------------------------------");
+    try {
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT * FROM reports ORDER BY report_date DESC LIMIT 30"));
+        unique_ptr<sql::ResultSet> r(p->executeQuery());
+        while (r && r->next()) {
+            stringstream ss;
+            ss << left << setw(16) << r->getString("report_date") << "RM " << setw(10) << fixed << setprecision(2) << r->getDouble("total_revenue") << "RM " << setw(10) << r->getDouble("total_topups") << r->getInt("total_orders");
+            lines.push_back(ss.str());
+        }
     }
-    cout << "----------------------------------------------" << endl;
+    catch (...) {}
+    lines.push_back("");
+
+    // SECTION 3: TRANSACTIONS
+    lines.push_back("SECTION 3: RECENT TRANSACTIONS");
+    lines.push_back("DATE                 USER            TYPE            AMOUNT");
+    lines.push_back("-----------------------------------------------------------------");
+    try {
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT t.date, u.username, t.type, t.amount FROM credit_transactions t JOIN users u ON t.user_id=u.user_id ORDER BY t.date DESC LIMIT 50"));
+        unique_ptr<sql::ResultSet> r(p->executeQuery());
+        while (r && r->next()) {
+            stringstream ss;
+            string d = r->getString("date");
+            ss << left << setw(21) << d.substr(0, 19) << setw(16) << r->getString("username") << setw(16) << r->getString("type") << "RM " << r->getDouble("amount");
+            lines.push_back(ss.str());
+        }
+    }
+    catch (...) {}
+
+    createRawPDF(filename, "MASTER BUSINESS REPORT", lines);
+}
+
+// ... (Keep report_RevenueBarChart, report_RevenueTrendAnalysis, saveDailyReportToDB, viewSavedReports as they were) ...
+void AdminService::report_RevenueBarChart() {
+    try {
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT DATE_FORMAT(start_time, '%Y-%m') as mth, SUM(cost) as sales FROM orders GROUP BY mth ORDER BY mth DESC LIMIT 6"));
+        unique_ptr<sql::ResultSet> r(p->executeQuery());
+        cout << "\nMONTHLY REVENUE CHART:" << endl;
+        while (r && r->next()) {
+            string d = r->getString("mth"); double s = r->getDouble("sales");
+            cout << left << setw(10) << d << " : ";
+            int len = (int)(s / 10.0); for (int i = 0; i < len; i++) cout << "*";
+            cout << " (RM " << fixed << setprecision(2) << s << ")" << endl;
+        }
+    }
+    catch (...) {}
+}
+void AdminService::report_RevenueTrendAnalysis() {
+    try {
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT DATE_FORMAT(start_time, '%Y-%m') as mth, SUM(cost) as sales FROM orders GROUP BY mth ORDER BY mth ASC"));
+        unique_ptr<sql::ResultSet> r(p->executeQuery());
+        cout << "\nMONTHLY TREND (% Change):" << endl;
+        double prev = 0.0;
+        while (r && r->next()) {
+            double curr = r->getDouble("sales");
+            cout << r->getString("mth") << ": RM " << curr;
+            if (prev > 0) {
+                double chg = ((curr - prev) / prev) * 100.0;
+                cout << " (" << (chg > 0 ? "+" : "") << (int)chg << "%)";
+            }
+            cout << endl; prev = curr;
+        }
+    }
+    catch (...) {}
+}
+void AdminService::saveDailyReportToDB() {
+    try {
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("INSERT INTO reports (report_date, total_topups, total_revenue, total_orders) SELECT CURDATE(), (SELECT COALESCE(SUM(amount),0) FROM credit_transactions WHERE type='TopUp' AND DATE(date)=CURDATE()), (SELECT COALESCE(SUM(cost),0) FROM orders WHERE DATE(start_time)=CURDATE()), (SELECT COUNT(*) FROM orders WHERE DATE(start_time)=CURDATE()) ON DUPLICATE KEY UPDATE total_topups=VALUES(total_topups), total_revenue=VALUES(total_revenue), total_orders=VALUES(total_orders)"));
+        p->executeUpdate();
+    }
+    catch (...) {}
+}
+void AdminService::viewSavedReports() {
+    try {
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT * FROM reports ORDER BY report_date DESC LIMIT 15"));
+        unique_ptr<sql::ResultSet> r(p->executeQuery());
+        cout << "\nDATE            TOP-UP        REVENUE       ORDERS" << endl;
+        while (r->next()) {
+            cout << left << setw(15) << r->getString("report_date") << "RM " << setw(10) << r->getDouble("total_topups") << "RM " << setw(10) << r->getDouble("total_revenue") << r->getInt("total_orders") << endl;
+        }
+    }
+    catch (...) {}
 }

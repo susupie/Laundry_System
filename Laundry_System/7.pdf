@@ -1,0 +1,72 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 5000] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+4 0 obj
+<< /Length 3600 >>
+stream
+BT
+/F1 20 Tf
+50 4900 Td
+(DAILY SUMMARY REPORT) Tj
+/F1 9 Tf
+0 -30 Td
+(Generated: 2026-01-12) Tj
+0 -30 Td
+(DATE: 2025-11-20) Tj
+0 -12 Td
+(-----------------------------------------------------------------) Tj
+0 -12 Td
+(REVENUE TODAY       : RM 0.00) Tj
+0 -12 Td
+(TOP-UPS COLLECTED   : RM 20.00) Tj
+0 -12 Td
+(EST. NET PROFIT     : RM 0.00 (70% Margin)) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(MACHINE BREAKDOWN:) Tj
+0 -12 Td
+(-----------------------------------------------------------------) Tj
+0 -12 Td
+(Dryer D2             : 0 Cycles (RM 0)) Tj
+0 -12 Td
+(Dryer D1             : 0 Cycles (RM 0)) Tj
+0 -12 Td
+(Dryer D4             : 0 Cycles (RM 0)) Tj
+0 -12 Td
+(Dryer D3             : 0 Cycles (RM 0)) Tj
+0 -12 Td
+(Washer B2            : 0 Cycles (RM 0)) Tj
+0 -12 Td
+(Washer B1            : 0 Cycles (RM 0)) Tj
+0 -12 Td
+(Washer A2            : 0 Cycles (RM 0)) Tj
+0 -12 Td
+(Washer A1            : 0 Cycles (RM 0)) Tj
+0 -12 Td
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000060 00000 n 
+0000000110 00000 n 
+0000000300 00000 n 
+0000000200 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+400
+%%EOF

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <limits> 
 #include <string>
+#include <conio.h> 
+
 
 using namespace std;
 
@@ -54,4 +56,34 @@ string getValidatedString(string prompt) {
         }
         cout << "[!] Input cannot be empty." << endl;
     }
+}
+
+string getMaskedPassword(string prompt) {
+    string password = "";
+    char ch;
+
+    cout << prompt;
+
+    while (true) {
+        ch = _getch(); // Get character without echoing to screen
+
+        // IF ENTER KEY (13) IS PRESSED
+        if (ch == 13) {
+            cout << endl;
+            break;
+        }
+        // IF BACKSPACE KEY (8) IS PRESSED
+        else if (ch == 8) {
+            if (!password.empty()) {
+                password.pop_back();   // Remove last char from string
+                cout << "\b \b";       // Erase star from screen
+            }
+        }
+        // NORMAL CHARACTER
+        else {
+            password += ch;
+            cout << "*";
+        }
+    }
+    return password;
 }

@@ -107,7 +107,7 @@ void SubMenu_Machines(AdminService& service) {
             string maintenanceNote = "-";
             if (statusChoice == 2) {
                 cout << "Enter Reason (e.g. Motor Issue): ";
-                cin.ignore();
+                //cin.ignore();
                 getline(cin, maintenanceNote);
             }
 
@@ -117,19 +117,20 @@ void SubMenu_Machines(AdminService& service) {
                 cout << "\n[FAILED] ID not found." << endl;
         }
         else if (choice == 3) {
-            printSectionHeader("ADD NEW MACHINE");
+            printSectionHeader("ADD MACHINE");
+            string name = getValidatedString("Name: ");
 
-            // Safe String Input
-            string name = getValidatedString("Name (e.g. Washer A) : ");
-            string type = getValidatedString("Type (washer/dryer)  : ");
+            // 1/2 Selection for Type
+            cout << "Type (1. Washer, 2. Dryer) > ";
+            int t = getValidatedChoice(1, 2);
+            string type = (t == 1) ? "washer" : "dryer";
 
-            // Safe Numeric Input (Prevents Crashing)
-            int weight = (int)getValidatedDouble("Weight Capacity (kg) : ");
-            double price = getValidatedDouble("Price per Cycle (RM) : ");
+            string location = getValidatedString("Location: ");
+            int weight = (int)getValidatedDouble("Weight (kg): ");
+            double price = getValidatedDouble("Price (RM): ");
 
-            service.addMachine(name, type, weight, price);
-
-            cout << "\n(Press Enter to continue...)"; cin.get();
+            service.addMachine(name, type, weight, price, location);
+            cout << "\n(Press enter to continue...)"; cin.get();
         }
         else if (choice == 4) {
             printSectionHeader("DELETE MACHINE");
@@ -174,96 +175,98 @@ void SubMenu_Orders(AdminService& service) {
 }
 
 // --- SUB MENU: REPORTS ---
-void SubMenu_Reports(AdminService& service) {
-    bool backToMain = false;
-    while (!backToMain) {
-        printHeader("ADVANCED REPORTING");
-        cout << "1. Machine Performance Table" << endl;
-        cout << "2. Financial Summary List" << endl;
-        cout << "3. Revenue Bar Chart (Visual)" << endl;
-        cout << "4. Revenue Trend Analysis (%)" << endl;
-        cout << "5. Search Orders" << endl;
-        cout << "6. Export Daily Report to PDF" << endl;
-        cout << "7. Export Transaction History to PDF" << endl;
-        cout << "8. View Past Reports" << endl;
-        cout << "9. Back" << endl;
+void SubMenu_ExportPDF(AdminService& service) {
+    bool back = false;
+    while (!back) {
+        printHeader("EXPORT TO PDF");
+        cout << "1. GENERATE MASTER PDF REPORT (All History)" << endl;
+        cout << "2. Daily Summary (Today's Stats)" << endl;
+        cout << "3. Specific Date Report" << endl;
+        cout << "4. Back" << endl;
         cout << "----------------------------------------------" << endl;
-        cout << "Select Report > ";
+        cout << "Select > ";
 
-        int choice = getValidatedChoice(1, 9);
+        int choice = getValidatedChoice(1, 4);
 
-        // Options 1-5 remain the same (Console Views)
-        if (choice == 1) service.report_MachineUsageTable();
-        else if (choice == 2) service.report_FinancialSummary();
-        else if (choice == 3) service.report_RevenueBarChart();
-        else if (choice == 4) service.report_RevenueTrendAnalysis();
-        else if (choice == 5) {
-            printSectionHeader("SEARCH DATABASE");
-            // No need for 'cin >> s', use the wrapper to prevent empty searches
-            string s = getValidatedString("Enter Customer Username : ");
-            service.searchOrders(s);
+        if (choice == 1) {
+            string f = getValidatedString("Enter Filename (e.g. master_rep): ");
+            service.exportMasterReportPDF(f);
+            cout << "\n(Enter...)"; cin.get();
         }
-        else if (choice == 6) { // Export Menu
-            printSectionHeader("EXPORT REPORTS TO PDF");
-            cout << "1. Export Today's Report" << endl;
-            cout << "2. Export Specific Date" << endl;
-            cout << "3. Export ALL History (Summary)" << endl;
-            cout << "4. Cancel" << endl;
-            cout << "Select Type > ";
+        else if (choice == 2) {
+            string f = getValidatedString("Enter Filename: ");
+            service.exportDailyReportPDF(f, "CURDATE()"); // Today
+            cout << "\n(Enter...)"; cin.get();
+        }
+        else if (choice == 3) {
+            // New "1, 2, 3" List Selection Logic
+            printSectionHeader("SELECT DATE");
+            vector<string> dates = service.getAvailableReportDates();
 
-            int pdfChoice = getValidatedChoice(1, 4);
-
-            if (pdfChoice == 1) {
-                string fname = getValidatedString("Filename: ");
-                service.exportDailyReportPDF(fname, "CURDATE()");
-            }
-            else if (pdfChoice == 2) {
-                // 1. Show the list of valid dates
-                service.showAvailableReportDates();
-
-                // 2. Now ask for input
-                cout << "Enter Date from list (YYYY-MM-DD): ";
-                string dateStr; cin >> dateStr;
-
-                cout << "Filename to save as: ";
-                string fname; cin >> fname;
-
-                service.exportDailyReportPDF(fname, dateStr);
-                // --- UPDATE ENDS HERE ---
-            }
-            else if (pdfChoice == 3) {
-                cout << "Filename (e.g. full_history): ";
-                string fname; cin >> fname;
-                service.exportAllHistoryPDF(fname);
+            for (size_t i = 0; i < dates.size(); i++) {
+                cout << (i + 1) << ". " << dates[i] << endl;
             }
 
-            if (pdfChoice != 4) {
-                cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
-            }
+            cout << "Select No. > ";
+            int dateIdx = getValidatedChoice(1, static_cast<int>(dates.size()));
+            string selectedDate = dates[dateIdx - 1];
+
+            string f = getValidatedString("Enter Filename: ");
+            service.exportDailyReportPDF(f, selectedDate);
+
+            cout << "\n(Enter...)"; cin.get();
         }
-        else if (choice == 7) {
-            printSectionHeader("EXPORT TRANS. HISTORY");
-            cout << "Enter filename to save (e.g. history_log): ";
-            string fname;
-            cin >> fname;
+        else if (choice == 4) back = true;
+    }
+}
 
-            service.exportTransactionHistoryPDF(fname);
+// --- RESTRUCTURED REPORTS MENU ---
+void SubMenu_Reports(AdminService& service) {
+    bool back = false;
+    while (!back) {
+        printHeader("REPORTS & ANALYTICS");
+        cout << "1. Machine Performance Table" << endl;
+        cout << "2. Revenue Bar Chart (Monthly)" << endl;
+        cout << "3. Revenue Trend Analysis (Monthly)" << endl;
+        cout << "4. Generate Sales Summary" << endl; // New Console View
+        cout << "5. Export to PDF" << endl;          // New Sub-Menu
+        cout << "6. View Saved Database Reports" << endl;
+        cout << "7. Back" << endl;
+        cout << "----------------------------------------------" << endl;
+        cout << "Select > ";
 
-            cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
+        int choice = getValidatedChoice(1, 7);
+
+        if (choice == 1) { 
+            service.report_MachineUsageTable(); 
+            cout << "\n(Enter...)"; 
+            cin.get(); 
         }
-
-        // --- VIEW SAVED REPORTS ---
-        else if (choice == 8) {
-            service.viewSavedReports();
-            cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
+        else if (choice == 2) { 
+            service.report_RevenueBarChart(); 
+            cout << "\n(Enter...)"; 
+            cin.get(); 
         }
-
-        else if (choice == 9) {
-            backToMain = true;
+        else if (choice == 3) { 
+            service.report_RevenueTrendAnalysis(); 
+            cout << "\n(Enter...)"; 
+            cin.get(); 
         }
-
-        if (!backToMain && choice <= 5) {
-            cout << "\n(Press Enter to continue...)"; cin.get(); cin.get();
+        else if (choice == 4) { 
+            service.report_SalesSummary(); 
+            cout << "\n(Enter...)"; 
+            cin.get(); 
+        } 
+        else if (choice == 5) { 
+            SubMenu_ExportPDF(service); 
+        } 
+        else if (choice == 6) { 
+            service.viewSavedReports(); 
+            cout << "\n(Enter...)"; 
+            cin.get(); 
+        }
+        else if (choice == 7) { 
+            back = true; 
         }
     }
 }
@@ -279,12 +282,11 @@ void MenuAdmin(shared_ptr<DBConnection> db_conn, string adminName) {
         cout << "2. Manage Machines" << endl;
         cout << "3. Manage Orders" << endl;
         cout << "4. Reports & Analytics" << endl;
-        cout << "5. Backup Data" << endl;
-        cout << "6. Logout" << endl;
+        cout << "5. Logout" << endl;
         cout << "----------------------------------------------" << endl;
 
         cout << "Select Option > ";
-        int choice = getValidatedChoice(1, 6);
+        int choice = getValidatedChoice(1, 5);
 
         switch (choice) {
         case 1:
@@ -300,10 +302,6 @@ void MenuAdmin(shared_ptr<DBConnection> db_conn, string adminName) {
             SubMenu_Reports(adminService);
             break;
         case 5:
-            printSectionHeader("DATA BACKUP");
-            adminService.saveData();
-            break;
-        case 6:
             stayInAdminMenu = false;
             break;
         }

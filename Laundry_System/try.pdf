@@ -1,0 +1,154 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 5000] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+4 0 obj
+<< /Length 7700 >>
+stream
+BT
+/F1 20 Tf
+50 4900 Td
+(MASTER BUSINESS REPORT) Tj
+/F1 9 Tf
+0 -30 Td
+(Generated: 2026-01-12) Tj
+0 -30 Td
+(SECTION 1: BUSINESS HISTORY) Tj
+0 -12 Td
+(DATE            REVENUE       TOP-UPS       ORDERS) Tj
+0 -12 Td
+(-----------------------------------------------------------------) Tj
+0 -12 Td
+(2026-01-07      RM 10        RM 60        1) Tj
+0 -12 Td
+(2026-01-07      RM 10        RM 60        1) Tj
+0 -12 Td
+(2026-01-02      RM 35        RM 50        2) Tj
+0 -12 Td
+(2025-12-24      RM 10        RM 10        1) Tj
+0 -12 Td
+(2025-12-10      RM 0         RM 50        0) Tj
+0 -12 Td
+(2025-12-01      RM 55        RM 200       3) Tj
+0 -12 Td
+(2025-11-20      RM 0         RM 20        0) Tj
+0 -12 Td
+(2025-11-15      RM 25        RM 100       2) Tj
+0 -12 Td
+(2025-11-02      RM 35        RM 50        2) Tj
+0 -12 Td
+(2025-10-25      RM 0         RM 100       0) Tj
+0 -12 Td
+(2025-10-12      RM 20        RM 20        1) Tj
+0 -12 Td
+(2025-10-05      RM 25        RM 50        2) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(SECTION 2: MACHINE BREAKDOWN) Tj
+0 -12 Td
+(MACHINE NAME          CYCLES      EARNED) Tj
+0 -12 Td
+(-----------------------------------------------------------------) Tj
+0 -12 Td
+(Dryer D1              2           RM 30) Tj
+0 -12 Td
+(Dryer D2              2           RM 30) Tj
+0 -12 Td
+(Dryer D3              1           RM 15) Tj
+0 -12 Td
+(Washer A1             4           RM 40) Tj
+0 -12 Td
+(Washer A2             3           RM 60) Tj
+0 -12 Td
+(Washer B1             2           RM 40) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(SECTION 3: RECENT TRANSACTIONS) Tj
+0 -12 Td
+(DATE                 USER            TYPE            AMOUNT) Tj
+0 -12 Td
+(-----------------------------------------------------------------) Tj
+0 -12 Td
+(2026-01-12 12:08:44  nurul           Payment         RM 10) Tj
+0 -12 Td
+(2026-01-07 09:13:30  hello           TopUp           RM 10) Tj
+0 -12 Td
+(2026-01-07 08:42:36  nurul           Payment         RM 10) Tj
+0 -12 Td
+(2026-01-07 08:41:53  nurul           TopUp           RM 10) Tj
+0 -12 Td
+(2026-01-07 08:41:13  nurul           TopUp           RM 50) Tj
+0 -12 Td
+(2026-01-02 10:20:00  siti_baker      Payment         RM 15) Tj
+0 -12 Td
+(2026-01-02 09:15:00  siti_baker      Payment         RM 20) Tj
+0 -12 Td
+(2026-01-02 09:00:00  siti_baker      TopUp           RM 50) Tj
+0 -12 Td
+(2025-12-24 22:15:00  ben_g           Payment         RM 10) Tj
+0 -12 Td
+(2025-12-24 22:00:00  ben_g           TopUp           RM 10) Tj
+0 -12 Td
+(2025-12-10 12:00:00  muthu_gym       TopUp           RM 50) Tj
+0 -12 Td
+(2025-12-01 10:10:00  muthu_gym       Payment         RM 15) Tj
+0 -12 Td
+(2025-12-01 09:00:00  muthu_gym       Payment         RM 20) Tj
+0 -12 Td
+(2025-12-01 08:30:00  jess_y          Payment         RM 20) Tj
+0 -12 Td
+(2025-12-01 08:00:00  jess_y          TopUp           RM 200) Tj
+0 -12 Td
+(2025-11-20 20:00:00  ali_xo          TopUp           RM 20) Tj
+0 -12 Td
+(2025-11-15 20:05:00  sarah_luv       Payment         RM 15) Tj
+0 -12 Td
+(2025-11-15 19:00:00  sarah_luv       Payment         RM 10) Tj
+0 -12 Td
+(2025-11-15 18:30:00  sarah_luv       TopUp           RM 100) Tj
+0 -12 Td
+(2025-11-02 12:20:00  ah_hock         Payment         RM 15) Tj
+0 -12 Td
+(2025-11-02 11:15:00  ah_hock         Payment         RM 20) Tj
+0 -12 Td
+(2025-11-02 11:00:00  ah_hock         TopUp           RM 50) Tj
+0 -12 Td
+(2025-10-25 09:00:00  muthu_gym       TopUp           RM 100) Tj
+0 -12 Td
+(2025-10-12 14:30:00  siti_baker      Payment         RM 20) Tj
+0 -12 Td
+(2025-10-12 14:15:00  siti_baker      TopUp           RM 20) Tj
+0 -12 Td
+(2025-10-05 12:10:00  ali_xo          Payment         RM 15) Tj
+0 -12 Td
+(2025-10-05 11:00:00  ali_xo          Payment         RM 10) Tj
+0 -12 Td
+(2025-10-05 10:30:00  ali_xo          TopUp           RM 50) Tj
+0 -12 Td
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000060 00000 n 
+0000000110 00000 n 
+0000000300 00000 n 
+0000000200 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+400
+%%EOF

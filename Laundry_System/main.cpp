@@ -71,9 +71,7 @@ void runAuthMenu(AuthService& auth_service) {
             getline(cin, email);
             cout << "Enter Username: ";
             getline(cin, username);
-            cout << "Enter Password: ";
-            getline(cin, password);
-
+            password = getMaskedPassword("Enter Password: ");
             cout << "----------------------------------------------------------------" << endl;
             auth_service.registerUser(username, email, password);
 
@@ -85,8 +83,7 @@ void runAuthMenu(AuthService& auth_service) {
             cout << "\n--- LOGIN ------------------------------------------------------" << endl;
             cout << "\nEnter Email OR Username: ";
             getline(cin, identifier);
-            cout << "Enter Password: ";
-            getline(cin, password);
+            password = getMaskedPassword("Enter Password: ");
 
             cout << "----------------------------------------------------------------" << endl;
             auth_service.loginUser(identifier, password);

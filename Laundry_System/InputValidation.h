@@ -10,5 +10,7 @@ double getValidatedDouble(std::string prompt);
 
 // NEW: For Non-Empty Strings (Names, Emails)
 std::string getValidatedString(std::string prompt);
+std::string getMaskedPassword(std::string prompt);
+
 
 #endif
