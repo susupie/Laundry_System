@@ -32,7 +32,7 @@ void AdminService::createRawPDF(string filename, string title, vector<string> li
     string cmd = "start \"\" \"" + filename + "\""; system(cmd.c_str());
 }
 
-// --- 1. MACHINE USAGE TABLE (Fixed: Shows ALL machines now) ---
+// --- 1. MACHINE USAGE TABLE  ---
 void AdminService::report_MachineUsageTable() {
     try {
         // LEFT JOIN machines to orders ensures machines with 0 orders still show up
@@ -42,8 +42,10 @@ void AdminService::report_MachineUsageTable() {
             "GROUP BY m.machine_name ORDER BY m.type DESC, m.machine_name ASC";
         unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement(sql));
         unique_ptr<sql::ResultSet> r(p->executeQuery());
-
-        cout << "\n------------------ MACHINE PERFORMANCE TABLE ------------------" << endl;
+        cout << "\n================================================================\n";
+        cout << "                     MACHINE PERFORMANCE TABLE " << endl;
+        cout << "================================================================\n\n";
+        cout << "+----------------------+------------+-----------------+" << endl;
         cout << "| " << left << setw(20) << "Machine Name" << " | " << setw(10) << "Cycles" << " | " << setw(15) << "Total Revenue" << " |" << endl;
         cout << "+----------------------+------------+-----------------+" << endl;
         while (r->next()) {
@@ -83,16 +85,16 @@ void AdminService::report_SalesSummary() {
         double netProfit = totalRev - totalExpenses;
         double profitMargin = (totalRev > 0) ? (netProfit / totalRev) * 100.0 : 0.0;
 
-        cout << "\n--------------------------------------------------" << endl;
-        cout << "                SALES SUMMARY                     " << endl;
-        cout << "--------------------------------------------------" << endl;
+        cout << "\n================================================================\n";
+        cout << "                            SALES SUMMARY                     " << endl;
+        cout << "================================================================\n";
         cout << "\n1. Total Laundry Sales   : RM " << fixed << setprecision(2) << totalRev << endl;
         cout << "2. Total Wallet Deposits : RM " << totalTopup << endl;
-        cout << "--------------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
         cout << "3. Est. Utility Cost     : RM " << totalExpenses << " (RM 3.50/cycle)" << endl;
-        cout << "4. NET PROFIT            : RM " << netProfit << endl;
-        cout << "5. PROFIT MARGIN         : " << (int)profitMargin << "%" << endl;
-        cout << "\n--------------------------------------------------" << endl;
+        cout << "4. Net Profit            : RM " << netProfit << endl;
+        cout << "5. Profit Margin         : " << (int)profitMargin << "%" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
     }
     catch (...) {}
 }
@@ -179,6 +181,7 @@ void AdminService::exportMasterReportPDF(string filename) {
 
     // SECTION 1: MACHINE BREAKDOWN (FIXED LEFT JOIN)
     lines.push_back("SECTION 1: MACHINE BREAKDOWN (All Time)");
+    lines.push_back("-----------------------------------------------------------------");
     lines.push_back("MACHINE NAME          TYPE        CYCLES      TOTAL EARNED");
     lines.push_back("-----------------------------------------------------------------");
     try {
@@ -198,10 +201,11 @@ void AdminService::exportMasterReportPDF(string filename) {
 
     // SECTION 2: HISTORY
     lines.push_back("SECTION 2: FULL BUSINESS HISTORY");
+    lines.push_back("-----------------------------------------------------------------");
     lines.push_back("DATE            REVENUE       TOP-UPS       ORDERS");
     lines.push_back("-----------------------------------------------------------------");
     try {
-        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT * FROM reports ORDER BY report_date DESC LIMIT 30"));
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT * FROM reports ORDER BY report_date DESC LIMIT 100"));
         unique_ptr<sql::ResultSet> r(p->executeQuery());
         while (r && r->next()) {
             stringstream ss;
@@ -213,11 +217,12 @@ void AdminService::exportMasterReportPDF(string filename) {
     lines.push_back("");
 
     // SECTION 3: TRANSACTIONS
-    lines.push_back("SECTION 3: RECENT TRANSACTIONS");
+    lines.push_back("SECTION 3: ALL TRANSACTIONS");
+    lines.push_back("-----------------------------------------------------------------");
     lines.push_back("DATE                 USER            TYPE            AMOUNT");
     lines.push_back("-----------------------------------------------------------------");
     try {
-        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT t.date, u.username, t.type, t.amount FROM credit_transactions t JOIN users u ON t.user_id=u.user_id ORDER BY t.date DESC LIMIT 50"));
+        unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT t.date, u.username, t.type, t.amount FROM credit_transactions t JOIN users u ON t.user_id=u.user_id ORDER BY t.date DESC LIMIT 100"));
         unique_ptr<sql::ResultSet> r(p->executeQuery());
         while (r && r->next()) {
             stringstream ss;
@@ -231,12 +236,13 @@ void AdminService::exportMasterReportPDF(string filename) {
     createRawPDF(filename, "MASTER BUSINESS REPORT", lines);
 }
 
-// ... (Keep report_RevenueBarChart, report_RevenueTrendAnalysis, saveDailyReportToDB, viewSavedReports as they were) ...
 void AdminService::report_RevenueBarChart() {
     try {
         unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT DATE_FORMAT(start_time, '%Y-%m') as mth, SUM(cost) as sales FROM orders GROUP BY mth ORDER BY mth DESC LIMIT 6"));
         unique_ptr<sql::ResultSet> r(p->executeQuery());
-        cout << "\nMONTHLY REVENUE CHART:" << endl;
+        cout << "\n================================================================\n";
+        cout << "                      MONTHLY REVENUE CHART" << endl;
+        cout << "================================================================\n\n";
         while (r && r->next()) {
             string d = r->getString("mth"); double s = r->getDouble("sales");
             cout << left << setw(10) << d << " : ";
@@ -250,7 +256,9 @@ void AdminService::report_RevenueTrendAnalysis() {
     try {
         unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT DATE_FORMAT(start_time, '%Y-%m') as mth, SUM(cost) as sales FROM orders GROUP BY mth ORDER BY mth ASC"));
         unique_ptr<sql::ResultSet> r(p->executeQuery());
-        cout << "\nMONTHLY TREND (% Change):" << endl;
+        cout << "\n================================================================\n";
+        cout << "                       MONTHLY TREND (% Change)" << endl;
+        cout << "================================================================\n\n";
         double prev = 0.0;
         while (r && r->next()) {
             double curr = r->getDouble("sales");
@@ -275,10 +283,13 @@ void AdminService::viewSavedReports() {
     try {
         unique_ptr<sql::PreparedStatement> p(db_connection->prepareStatement("SELECT * FROM reports ORDER BY report_date DESC LIMIT 15"));
         unique_ptr<sql::ResultSet> r(p->executeQuery());
-        cout << "\nDATE            TOP-UP        REVENUE       ORDERS" << endl;
+        cout << "\n================================================================\n";
+        cout << "DATE            TOP-UP        REVENUE       ORDERS" << endl;
+        cout << "================================================================\n";
         while (r->next()) {
             cout << left << setw(15) << r->getString("report_date") << "RM " << setw(10) << r->getDouble("total_topups") << "RM " << setw(10) << r->getDouble("total_revenue") << r->getInt("total_orders") << endl;
         }
+        cout << "-----------------------------------------------------------------" << endl;
     }
     catch (...) {}
 }

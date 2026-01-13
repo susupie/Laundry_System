@@ -9,8 +9,6 @@ class AuthService {
 public:
     AuthService(std::shared_ptr<DBConnection> db_conn);
 
-    // Removed initializeUserTable()
-
     bool registerUser(const std::string& username, const std::string& email, const std::string& password);
     bool loginUser(const std::string& identifier, const std::string& password);
 

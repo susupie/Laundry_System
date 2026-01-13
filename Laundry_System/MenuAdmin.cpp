@@ -10,36 +10,35 @@ using namespace std;
 
 // 1. Just prints the title box (NO CLEAR SCREEN)
 void printHeader(string title) {
-    cout << "\n"; // Extra space to separate from previous action
-    cout << "==============================================" << endl;
-    cout << "           " << title << endl;
-    cout << "==============================================" << endl;
+    cout << "\n"; 
+    cout << "================================================================\n";
+    cout << "                 " << title << endl;
+    cout << "================================================================\n";
 }
 
 // 2. Shows a nice box for sub-actions
 void printSectionHeader(string title) {
     cout << "\n";
-    cout << "**********************************************" << endl;
-
+    cout << "***************************************************************" << endl;
     // Center text logic
     int width = 46;
     int padding = (width - static_cast<int>(title.length())) / 2;
     if (padding < 0) padding = 0;
 
     cout << string(padding, ' ') << title << endl;
-    cout << "**********************************************" << endl;
+    cout << "***************************************************************" << endl;
 }
 
 // --- SUB MENU: CUSTOMERS ---
 void SubMenu_Customers(AdminService& service) {
     bool backToMain = false;
     while (!backToMain) {
-        printHeader("MANAGE CUSTOMERS");
+        printHeader("    MANAGE CUSTOMERS");
         cout << "1. View All Customers" << endl;
         cout << "2. Add New Customer" << endl;
         cout << "3. Delete Customer" << endl;
         cout << "4. Back" << endl;
-        cout << "----------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
         cout << "Select Option > ";
 
         int choice = getValidatedChoice(1, 4);
@@ -77,13 +76,13 @@ void SubMenu_Customers(AdminService& service) {
 void SubMenu_Machines(AdminService& service) {
     bool backToMain = false;
     while (!backToMain) {
-        printHeader("MANAGE MACHINES");
+        printHeader("     MANAGE MACHINES");
         cout << "1. View All Machines" << endl;
         cout << "2. Update Status (Maintenance)" << endl;
         cout << "3. Add New Machine" << endl;
         cout << "4. Delete Machine" << endl;
         cout << "5. Back" << endl;
-        cout << "----------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
         cout << "Select Option > ";
 
         int choice = getValidatedChoice(1, 5);
@@ -149,11 +148,11 @@ void SubMenu_Machines(AdminService& service) {
 void SubMenu_Orders(AdminService& service) {
     bool backToMain = false;
     while (!backToMain) {
-        printHeader("MANAGE ORDERS");
+        printHeader("     MANAGE ORDERS");
         cout << "1. View Recent Orders" << endl;
         cout << "2. Delete Order Record" << endl;
         cout << "3. Back" << endl;
-        cout << "----------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
         cout << "Select Option > ";
 
         int choice = getValidatedChoice(1, 3);
@@ -178,12 +177,12 @@ void SubMenu_Orders(AdminService& service) {
 void SubMenu_ExportPDF(AdminService& service) {
     bool back = false;
     while (!back) {
-        printHeader("EXPORT TO PDF");
-        cout << "1. GENERATE MASTER PDF REPORT (All History)" << endl;
-        cout << "2. Daily Summary (Today's Stats)" << endl;
+        printHeader("     EXPORT TO PDF");
+        cout << "1. Generate Master Report (All History)" << endl;
+        cout << "2. Daily Summary (Today's Report)" << endl;
         cout << "3. Specific Date Report" << endl;
         cout << "4. Back" << endl;
-        cout << "----------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
         cout << "Select > ";
 
         int choice = getValidatedChoice(1, 4);
@@ -191,12 +190,14 @@ void SubMenu_ExportPDF(AdminService& service) {
         if (choice == 1) {
             string f = getValidatedString("Enter Filename (e.g. master_rep): ");
             service.exportMasterReportPDF(f);
-            cout << "\n(Enter...)"; cin.get();
+            cout << "\n(Press enter to continue...)";
+            cin.get();
         }
         else if (choice == 2) {
             string f = getValidatedString("Enter Filename: ");
             service.exportDailyReportPDF(f, "CURDATE()"); // Today
-            cout << "\n(Enter...)"; cin.get();
+            cout << "\n(Press enter to continue...)";
+            cin.get();
         }
         else if (choice == 3) {
             // New "1, 2, 3" List Selection Logic
@@ -214,7 +215,8 @@ void SubMenu_ExportPDF(AdminService& service) {
             string f = getValidatedString("Enter Filename: ");
             service.exportDailyReportPDF(f, selectedDate);
 
-            cout << "\n(Enter...)"; cin.get();
+            cout << "\n(Press enter to continue...)";
+            cin.get();
         }
         else if (choice == 4) back = true;
     }
@@ -224,7 +226,7 @@ void SubMenu_ExportPDF(AdminService& service) {
 void SubMenu_Reports(AdminService& service) {
     bool back = false;
     while (!back) {
-        printHeader("REPORTS & ANALYTICS");
+        printHeader("     REPORTS & ANALYTICS");
         cout << "1. Machine Performance Table" << endl;
         cout << "2. Revenue Bar Chart (Monthly)" << endl;
         cout << "3. Revenue Trend Analysis (Monthly)" << endl;
@@ -232,38 +234,38 @@ void SubMenu_Reports(AdminService& service) {
         cout << "5. Export to PDF" << endl;          // New Sub-Menu
         cout << "6. View Saved Database Reports" << endl;
         cout << "7. Back" << endl;
-        cout << "----------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
         cout << "Select > ";
 
         int choice = getValidatedChoice(1, 7);
 
         if (choice == 1) { 
             service.report_MachineUsageTable(); 
-            cout << "\n(Enter...)"; 
+            cout << "\n(Press enter to continue...)"; 
             cin.get(); 
         }
         else if (choice == 2) { 
             service.report_RevenueBarChart(); 
-            cout << "\n(Enter...)"; 
-            cin.get(); 
+            cout << "\n(Press enter to continue...)";
+            cin.get();
         }
         else if (choice == 3) { 
             service.report_RevenueTrendAnalysis(); 
-            cout << "\n(Enter...)"; 
-            cin.get(); 
+            cout << "\n(Press enter to continue...)";
+            cin.get();
         }
         else if (choice == 4) { 
             service.report_SalesSummary(); 
-            cout << "\n(Enter...)"; 
-            cin.get(); 
+            cout << "\n(Press enter to continue...)";
+            cin.get();
         } 
         else if (choice == 5) { 
             SubMenu_ExportPDF(service); 
         } 
         else if (choice == 6) { 
             service.viewSavedReports(); 
-            cout << "\n(Enter...)"; 
-            cin.get(); 
+            cout << "\n(Press enter to continue...)";
+            cin.get();
         }
         else if (choice == 7) { 
             back = true; 
@@ -283,8 +285,7 @@ void MenuAdmin(shared_ptr<DBConnection> db_conn, string adminName) {
         cout << "3. Manage Orders" << endl;
         cout << "4. Reports & Analytics" << endl;
         cout << "5. Logout" << endl;
-        cout << "----------------------------------------------" << endl;
-
+        cout << "-----------------------------------------------------------------" << endl;
         cout << "Select Option > ";
         int choice = getValidatedChoice(1, 5);
 

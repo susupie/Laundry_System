@@ -34,9 +34,11 @@ void AdminService::listCustomers() {
     try {
         unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement("SELECT user_id, username, email, balance FROM users WHERE role = 'customer' ORDER BY user_id ASC"));
         unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-        cout << "\n-------------------- CUSTOMER LIST --------------------" << endl;
+        cout << "\n================================================================\n";
+        cout << "                          CUSTOMER LIST " << endl;
+        cout << "================================================================\n";
         cout << left << setw(5) << "ID" << setw(15) << "Username" << setw(25) << "Email" << "Balance" << endl;
-        cout << "-------------------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
         while (res && res->next()) {
             cout << left << setw(5) << res->getInt("user_id") << setw(15) << res->getString("username") << setw(25) << res->getString("email") << "RM " << fixed << setprecision(2) << res->getDouble("balance") << endl;
         }
@@ -57,22 +59,25 @@ void AdminService::listMachines() {
     try {
         unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement("SELECT * FROM machines ORDER BY type DESC, machine_name ASC"));
         unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        cout << "\n=================================== MACHINE LIST ===================================" << endl;
+        cout << "\n============================================================================================================" << endl;
+        cout << "                                      MACHINE LIST" << endl;
+        cout << "============================================================================================================" << endl;
         // Adjusted widths to prevent overlapping
-        cout << left << setw(5) << "ID" << setw(18) << "Name" << setw(10) << "Type" << setw(25) << "Location" << setw(18) << "Status" << "Note" << endl;
-        cout << "------------------------------------------------------------------------------------" << endl;
+        cout << left << setw(5) << "ID" << setw(18) << "Name" << setw(10) << "Price(RM)" << setw(10)  << "Weight(Kg)" << setw(10) << "Type" << setw(25) << "Location" << setw(18) << "Status" << "Note" << endl;
+        cout << "------------------------------------------------------------------------------------------------------------" << endl;
         while (res && res->next()) {
             string note = res->getString("maintenance_note");
             if (note.empty()) note = "-";
             cout << left << setw(5) << res->getInt("machine_id")
                 << setw(18) << res->getString("machine_name")
                 << setw(10) << res->getString("type")
-                << setw(25) << res->getString("location") // Widen column
+                << setw(10) << res->getString("price_per_cycle")
+                << setw(10) << res->getString("weight_capacity")
+                << setw(25) << res->getString("location") 
                 << setw(18) << res->getString("status")
                 << note << endl;
         }
-        cout << "====================================================================================" << endl;
+        cout << "------------------------------------------------------------------------------------------------------------" << endl;
     }
     catch (...) {}
 }
@@ -110,10 +115,11 @@ void AdminService::listAllOrders() {
         string sql = "SELECT o.order_id, u.username, m.machine_name, o.order_status, o.cost, o.start_time FROM orders o JOIN users u ON o.user_id = u.user_id JOIN machines m ON o.machine_id = m.machine_id ORDER BY o.start_time DESC LIMIT 20";
         unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement(sql));
         unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        cout << "\n------------------------- RECENT ORDERS -------------------------" << endl;
+        cout << "\n====================================================================================" << endl;
+        cout << "\                           RECENT ORDERS" << endl;
+        cout << "====================================================================================" << endl;
         cout << left << setw(5) << "ID" << setw(22) << "Date" << setw(15) << "User" << setw(15) << "Machine" << setw(15) << "Status" << "Cost" << endl;
-        cout << "-----------------------------------------------------------------" << endl;
+        cout << "------------------------------------------------------------------------------------" << endl;
         while (res && res->next()) {
             cout << left << setw(5) << res->getInt("order_id")
                 << setw(22) << res->getString("start_time")

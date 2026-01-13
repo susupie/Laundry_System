@@ -127,16 +127,18 @@ vector<Machine> OrderService::getAvailableMachines(string type) {
 
 void OrderService::showUserOrders(int userId) {
     try {
-        string sql = "SELECT o.order_id, m.machine_name, o.order_status, o.start_time, o.cost "
+        string sql = "SELECT o.order_id, m.machine_name, o.order_status, o.start_time, o.end_time, o.cost "
             "FROM orders o JOIN machines m ON o.machine_id = m.machine_id "
             "WHERE o.user_id = ? ORDER BY o.start_time DESC LIMIT 10";
         unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement(sql));
         pstmt->setInt(1, userId);
         unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        cout << "\n------------------ MY ORDERS ------------------" << endl;
-        cout << left << setw(10) << "ID" << setw(15) << "Machine" << setw(15) << "Status" << setw(10) << "Cost" << "Time" << endl;
-        cout << "-----------------------------------------------" << endl;
+        cout << "\n========================================================================================\n";
+        cout << "                             MY ORDERS " << endl;
+        cout << "========================================================================================\n";
+        cout << left << setw(10) << "ID" << setw(15) << "Machine" << setw(15) << "Status" << setw(10) << "Cost" << "Start Time" << setw(20) 
+            << "             End Time" << endl;
+        cout << "========================================================================================\n";
         bool found = false;
         while (res && res->next()) {
             found = true;
@@ -144,10 +146,11 @@ void OrderService::showUserOrders(int userId) {
                 << setw(15) << res->getString("machine_name")
                 << setw(15) << res->getString("order_status")
                 << "RM" << setw(9) << res->getDouble("cost")
-                << res->getString("start_time") << endl;
+                << res->getString("start_time") 
+                << "   " << res->getString("end_time") << endl;
         }
         if (!found) cout << "No orders found." << endl;
-        cout << "-----------------------------------------------" << endl;
+        cout << "----------------------------------------------------------------------------------------" << endl;
     }
     catch (...) {}
 }
@@ -157,10 +160,11 @@ void OrderService::showTransactionHistory(int userId) {
         unique_ptr<sql::PreparedStatement> pstmt(db_connection->prepareStatement("SELECT type, amount, date FROM credit_transactions WHERE user_id = ? ORDER BY date DESC"));
         pstmt->setInt(1, userId);
         unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        cout << "\n================ TRANSACTION HISTORY ================" << endl;
+        cout << "\n================================================================\n";
+        cout << "                       TRANSACTION HISTORY " << endl;
+        cout << "================================================================\n";
         cout << left << setw(20) << "Date" << setw(15) << "Type" << setw(10) << "Amount" << endl;
-        cout << "-----------------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
         while (res && res->next()) {
             string type = res->getString("type");
             double amount = res->getDouble("amount");
@@ -168,7 +172,7 @@ void OrderService::showTransactionHistory(int userId) {
             string displayAmount = (type == "TopUp" ? "+ RM" : "- RM") + to_string(amount).substr(0, to_string(amount).find(".") + 3);
             cout << left << setw(20) << date << setw(15) << type << setw(10) << displayAmount << endl;
         }
-        cout << "=====================================================" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
     }
     catch (...) {}
 }

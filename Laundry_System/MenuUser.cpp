@@ -35,30 +35,29 @@ void MenuUser(shared_ptr<DBConnection> db_conn, string userEmail) {
     while (stayInMenu) {
         double currentBalance = orderService.getUserBalance(userId);
 
-        cout << "\n==============================================" << endl;
-        cout << "          WELCOME: " << userEmail << endl;
-        cout << "          BALANCE: RM " << fixed << setprecision(2) << currentBalance << endl;
-        cout << "==============================================" << endl;
+        cout << "\n================================================================\n";
+        cout << "                 WELCOME: " << userEmail << endl;
+        cout << "                 BALANCE: RM " << fixed << setprecision(2) << currentBalance << endl;
+        cout << "================================================================\n";
         cout << "1. Top Up Balance" << endl;
         cout << "2. Start Machine" << endl;
         cout << "3. View Orders" << endl;
         cout << "4. View Transactions" << endl;
         cout << "5. Logout" << endl;
-        cout << "----------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------" << endl;
 
         cout << "Select Option > ";
         menuUser = getValidatedChoice(1, 5);
 
         if (menuUser == 1) {
             // --- TOP UP SELECTION ---
-            cout << "\n==============================================" << endl;
-            cout << "            TOP UP WALLET                     " << endl;
-            cout << "==============================================" << endl;
+            cout << "\n================================================================\n";
+            cout << "                          TOP UP WALLET                     " << endl;
+            cout << "================================================================\n";
             cout << "1. RM 10.00\n2. RM 20.00\n3. RM 50.00\n4. RM 100.00" << endl;
-            cout << "----------------------------------------------" << endl;
+            cout << "-----------------------------------------------------------------" << endl;
             cout << "Select Amount > ";
 
-            // This function cleans the buffer automatically!
             int amtChoice = getValidatedChoice(1, 4);
 
             double targetAmount = 0.0;
@@ -69,7 +68,6 @@ void MenuUser(shared_ptr<DBConnection> db_conn, string userEmail) {
             case 4: targetAmount = 100.00; break;
             }
 
-            // --- PRETTY PAYMENT GATEWAY INTERFACE ---
             cout << "\n";
             cout << "**********************************************" << endl;
             cout << "              PAYMENT GATEWAY                 " << endl;
@@ -107,21 +105,24 @@ void MenuUser(shared_ptr<DBConnection> db_conn, string userEmail) {
             else {
                 cout << "\n[DECLINED] Invalid PIN (Must be 6 digits)." << endl;
             }
-            cout << "==============================================" << endl;
+            cout << "\n================================================================\n";
         }
         else if (menuUser == 2) {
             // --- START MACHINE ---
 
             // 1. Choose Type
-            cout << "\n==============================================" << endl;
-            cout << "          SELECT MACHINE TYPE " << endl;
+            cout << "\n================================================================\n";
+            cout << "                      SELECT MACHINE TYPE " << endl;
+            cout << "================================================================\n";
             cout << "1. Washer\n2. Dryer" << endl;
-            cout << "Choice > ";
+            cout << "\nChoice > ";
             int typeChoice = getValidatedChoice(1, 2);
             string machineType = (typeChoice == 1) ? "washer" : "dryer";
 
             // 2. FETCH FROM DB (Now includes price & weight!)
-            cout << "\n--- SEARCHING FOR IDLE " << machineType << "S ---" << endl;
+
+            cout << "\nSEARCHING FOR IDLE " << machineType << "S..." << endl;
+            cout << "-----------------------------------------------------------------" << endl;
             vector<Machine> availableMachines = orderService.getAvailableMachines(machineType);
 
             if (availableMachines.empty()) {
@@ -135,7 +136,7 @@ void MenuUser(shared_ptr<DBConnection> db_conn, string userEmail) {
                 << setw(10) << "Weight"
                 << setw(10) << "Price"
                 << "Location" << endl;
-            cout << "------------------------------------------------------------" << endl;
+            cout << "-----------------------------------------------------------------" << endl;
 
             for (size_t i = 0; i < availableMachines.size(); i++) {
                 cout << left << setw(5) << (i + 1)
@@ -176,7 +177,7 @@ void MenuUser(shared_ptr<DBConnection> db_conn, string userEmail) {
             else {
                 cout << "Cancelled." << endl;
             }
-            cout << "\n==============================================" << endl;
+            cout << "-----------------------------------------------------------------" << endl;
         }
         else if (menuUser == 3) {
             orderService.showUserOrders(userId);

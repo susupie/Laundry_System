@@ -52,7 +52,7 @@ void runAuthMenu(AuthService& auth_service) {
         system("cls"); 
 
         cout << "================================================================\n";
-        cout << "           WELCOME TO LAUNDRY CREDIT & SERVICE SYSTEM           \n";
+        cout << "           WELCOME TO LAUNDRY SERVICE & CREDIT SYSTEM           \n";
         cout << "================================================================\n";
         cout << "                                                                \n";
         cout << "    1. Register New Account                                     \n";
@@ -66,13 +66,15 @@ void runAuthMenu(AuthService& auth_service) {
 
         switch (choice) {
         case 1:
-            cout << "\n--- REGISTRATION -----------------------------------------------" << endl;
+            cout << "\n================================================================\n";
+            cout << "                         REGISTRATION ";
+            cout << "\n================================================================\n";
             cout << "\nEnter Email: ";
             getline(cin, email);
             cout << "Enter Username: ";
             getline(cin, username);
             password = getMaskedPassword("Enter Password: ");
-            cout << "----------------------------------------------------------------" << endl;
+            cout << "-----------------------------------------------------------------" << endl;
             auth_service.registerUser(username, email, password);
 
             cout << "\n(Press Enter to continue...)";
@@ -80,12 +82,13 @@ void runAuthMenu(AuthService& auth_service) {
             break;
 
         case 2:
-            cout << "\n--- LOGIN ------------------------------------------------------" << endl;
+            cout << "\n================================================================\n";
+            cout << "                             LOGIN";
+            cout << "\n================================================================\n";
             cout << "\nEnter Email OR Username: ";
             getline(cin, identifier);
             password = getMaskedPassword("Enter Password: ");
-
-            cout << "----------------------------------------------------------------" << endl;
+            cout << "-----------------------------------------------------------------" << endl;
             auth_service.loginUser(identifier, password);
 
             cout << "\n(Press Enter to continue...)";
@@ -96,9 +99,6 @@ void runAuthMenu(AuthService& auth_service) {
             cout << "\n================================================================" << endl;
             cout << "           THANK YOU AND HAVE A NICE DAY!                       " << endl;
             cout << "================================================================" << endl;
-
-            /*cout << "(Press Enter to close window...)";
-            cin.get();*/
             break;
         }
     } while (choice != 3);
