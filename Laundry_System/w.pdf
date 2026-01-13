@@ -12,213 +12,55 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 4 0 obj
-<< /Length 11900 >>
+<< /Length 4000 >>
 stream
 BT
 /F1 20 Tf
 50 4900 Td
-(MASTER BUSINESS REPORT) Tj
+(DAILY SUMMARY REPORT) Tj
 /F1 9 Tf
 0 -30 Td
-(Generated: 2026-01-12) Tj
+(Generated: 2026-01-14) Tj
 0 -30 Td
-(SECTION 1: MACHINE BREAKDOWN (All Time)) Tj
-0 -12 Td
-(MACHINE NAME          TYPE        CYCLES      TOTAL EARNED) Tj
+(DATE: 2026-01-14) Tj
 0 -12 Td
 (-----------------------------------------------------------------) Tj
 0 -12 Td
-(Dryer D4              dryer       1           RM 15) Tj
+(REVENUE TODAY       : RM 10.00) Tj
 0 -12 Td
-(Dryer D3              dryer       6           RM 90) Tj
+(TOP-UPS COLLECTED   : RM 10.00) Tj
 0 -12 Td
-(Dryer D2              dryer       8           RM 120) Tj
+(TOTAL CYCLES        : 1) Tj
 0 -12 Td
-(Dryer D1              dryer       9           RM 135) Tj
+(-----------------------------------------------------------------) Tj
 0 -12 Td
-(Washer A2             washer      18          RM 180) Tj
+(EST. UTILITY COST   : RM 3.50 (Based on RM 3.50/cycle)) Tj
 0 -12 Td
-(Washer A1             washer      15          RM 150) Tj
+(NET PROFIT          : RM 6.50) Tj
 0 -12 Td
-(Washer B2             washer      0           RM 0) Tj
-0 -12 Td
-(Washer B1             washer      18          RM 360) Tj
+(PROFIT MARGIN       : 65%) Tj
 0 -12 Td
 () Tj
 0 -12 Td
-(SECTION 2: FULL BUSINESS HISTORY) Tj
-0 -12 Td
-(DATE            REVENUE       TOP-UPS       ORDERS) Tj
+(MACHINE BREAKDOWN:) Tj
 0 -12 Td
 (-----------------------------------------------------------------) Tj
 0 -12 Td
-(2026-01-12      RM 85.00     RM 0.00      6) Tj
+(Dryer D4             : 0 Cycles (RM 0)) Tj
 0 -12 Td
-(2026-01-11      RM 25.00     RM 0.00      2) Tj
+(Dryer D3             : 0 Cycles (RM 0)) Tj
 0 -12 Td
-(2026-01-10      RM 25.00     RM 0.00      2) Tj
+(Dryer D2             : 0 Cycles (RM 0)) Tj
 0 -12 Td
-(2026-01-09      RM 20.00     RM 0.00      1) Tj
+(Dryer D1             : 0 Cycles (RM 0)) Tj
 0 -12 Td
-(2026-01-08      RM 10.00     RM 50.00     1) Tj
+(Washer B2            : 0 Cycles (RM 0)) Tj
 0 -12 Td
-(2026-01-07      RM 10.00     RM 0.00      1) Tj
+(Washer B1            : 0 Cycles (RM 0)) Tj
 0 -12 Td
-(2026-01-06      RM 20.00     RM 0.00      1) Tj
+(Washer A2            : 0 Cycles (RM 0)) Tj
 0 -12 Td
-(2026-01-05      RM 25.00     RM 0.00      2) Tj
-0 -12 Td
-(2026-01-04      RM 10.00     RM 0.00      1) Tj
-0 -12 Td
-(2026-01-03      RM 20.00     RM 0.00      1) Tj
-0 -12 Td
-(2026-01-02      RM 25.00     RM 0.00      2) Tj
-0 -12 Td
-(2026-01-01      RM 0.00      RM 100.00    0) Tj
-0 -12 Td
-(2025-12-31      RM 100.00    RM 0.00      7) Tj
-0 -12 Td
-(2025-12-30      RM 35.00     RM 0.00      2) Tj
-0 -12 Td
-(2025-12-29      RM 10.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-28      RM 10.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-26      RM 10.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-25      RM 20.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-24      RM 25.00     RM 0.00      2) Tj
-0 -12 Td
-(2025-12-22      RM 20.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-20      RM 35.00     RM 0.00      2) Tj
-0 -12 Td
-(2025-12-18      RM 10.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-15      RM 25.00     RM 100.00    2) Tj
-0 -12 Td
-(2025-12-12      RM 10.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-10      RM 20.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-05      RM 35.00     RM 0.00      3) Tj
-0 -12 Td
-(2025-12-03      RM 10.00     RM 0.00      1) Tj
-0 -12 Td
-(2025-12-01      RM 55.00     RM 400.00    3) Tj
-0 -12 Td
-(2025-11-30      RM 30.00     RM 0.00      2) Tj
-0 -12 Td
-(2025-11-25      RM 45.00     RM 0.00      3) Tj
-0 -12 Td
-() Tj
-0 -12 Td
-(SECTION 3: RECENT TRANSACTIONS) Tj
-0 -12 Td
-(DATE                 USER            TYPE            AMOUNT) Tj
-0 -12 Td
-(-----------------------------------------------------------------) Tj
-0 -12 Td
-(2026-01-12 12:00:00  ah_hock         Payment         RM 20) Tj
-0 -12 Td
-(2026-01-12 11:30:00  muthu_gym       Payment         RM 10) Tj
-0 -12 Td
-(2026-01-12 11:00:00  siti_baker      Payment         RM 10) Tj
-0 -12 Td
-(2026-01-12 10:00:00  ali_xo          Payment         RM 10) Tj
-0 -12 Td
-(2026-01-12 08:01:00  nurul           Payment         RM 15) Tj
-0 -12 Td
-(2026-01-12 08:00:00  nurul           Payment         RM 20) Tj
-0 -12 Td
-(2026-01-11 15:01:00  jess_y          Payment         RM 15) Tj
-0 -12 Td
-(2026-01-11 15:00:00  jess_y          Payment         RM 10) Tj
-0 -12 Td
-(2026-01-10 09:01:00  ben_g           Payment         RM 15) Tj
-0 -12 Td
-(2026-01-10 09:00:00  ben_g           Payment         RM 10) Tj
-0 -12 Td
-(2026-01-09 14:00:00  sarah_luv       Payment         RM 20) Tj
-0 -12 Td
-(2026-01-08 12:00:00  ah_hock         Payment         RM 10) Tj
-0 -12 Td
-(2026-01-08 10:00:00  muthu_gym       TopUp           RM 50) Tj
-0 -12 Td
-(2026-01-07 10:00:00  muthu_gym       Payment         RM 10) Tj
-0 -12 Td
-(2026-01-06 08:00:00  siti_baker      Payment         RM 20) Tj
-0 -12 Td
-(2026-01-05 17:10:00  ali_xo          Payment         RM 15) Tj
-0 -12 Td
-(2026-01-05 16:00:00  nurul           Payment         RM 10) Tj
-0 -12 Td
-(2026-01-04 11:00:00  jess_y          Payment         RM 10) Tj
-0 -12 Td
-(2026-01-03 14:00:00  ben_g           Payment         RM 20) Tj
-0 -12 Td
-(2026-01-02 09:01:00  sarah_luv       Payment         RM 15) Tj
-0 -12 Td
-(2026-01-02 09:00:00  sarah_luv       Payment         RM 10) Tj
-0 -12 Td
-(2026-01-01 09:00:00  ali_xo          TopUp           RM 100) Tj
-0 -12 Td
-(2025-12-31 23:31:00  nurul           Payment         RM 15) Tj
-0 -12 Td
-(2025-12-31 23:30:00  nurul           Payment         RM 10) Tj
-0 -12 Td
-(2025-12-31 23:01:00  jess_y          Payment         RM 15) Tj
-0 -12 Td
-(2025-12-31 23:00:00  jess_y          Payment         RM 20) Tj
-0 -12 Td
-(2025-12-31 22:00:00  ah_hock         Payment         RM 10) Tj
-0 -12 Td
-(2025-12-31 20:00:00  ah_hock         Payment         RM 15) Tj
-0 -12 Td
-(2025-12-31 18:00:00  muthu_gym       Payment         RM 15) Tj
-0 -12 Td
-(2025-12-30 10:01:00  siti_baker      Payment         RM 15) Tj
-0 -12 Td
-(2025-12-30 10:00:00  siti_baker      Payment         RM 20) Tj
-0 -12 Td
-(2025-12-29 15:00:00  ali_xo          Payment         RM 10) Tj
-0 -12 Td
-(2025-12-28 14:00:00  nurul           Payment         RM 10) Tj
-0 -12 Td
-(2025-12-26 12:00:00  jess_y          Payment         RM 10) Tj
-0 -12 Td
-(2025-12-25 09:00:00  ben_g           Payment         RM 20) Tj
-0 -12 Td
-(2025-12-24 16:01:00  sarah_luv       Payment         RM 15) Tj
-0 -12 Td
-(2025-12-24 16:00:00  sarah_luv       Payment         RM 10) Tj
-0 -12 Td
-(2025-12-22 10:00:00  ah_hock         Payment         RM 20) Tj
-0 -12 Td
-(2025-12-20 08:01:00  muthu_gym       Payment         RM 15) Tj
-0 -12 Td
-(2025-12-20 08:00:00  muthu_gym       Payment         RM 20) Tj
-0 -12 Td
-(2025-12-18 15:00:00  siti_baker      Payment         RM 10) Tj
-0 -12 Td
-(2025-12-15 13:01:00  ali_xo          Payment         RM 15) Tj
-0 -12 Td
-(2025-12-15 13:00:00  ali_xo          Payment         RM 10) Tj
-0 -12 Td
-(2025-12-15 10:05:00  nurul           TopUp           RM 50) Tj
-0 -12 Td
-(2025-12-15 10:00:00  nurul           TopUp           RM 50) Tj
-0 -12 Td
-(2025-12-12 11:00:00  nurul           Payment         RM 10) Tj
-0 -12 Td
-(2025-12-10 09:00:00  ben_g           Payment         RM 20) Tj
-0 -12 Td
-(2025-12-05 19:01:00  sarah_luv       Payment         RM 15) Tj
-0 -12 Td
-(2025-12-05 19:00:00  sarah_luv       Payment         RM 10) Tj
-0 -12 Td
-(2025-12-05 18:00:00  ah_hock         Payment         RM 10) Tj
+(Washer A1            : 1 Cycles (RM 10)) Tj
 0 -12 Td
 ET
 endstream

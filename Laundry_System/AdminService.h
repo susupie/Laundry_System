@@ -34,9 +34,8 @@ public:
     // HELPERS
     void saveDailyReportToDB();
     void viewSavedReports();
-    void searchOrders(std::string keyword);
+    //void searchOrders(std::string keyword);
 
-    // NEW: Returns a list of dates so user can choose "1", "2", "3"
     std::vector<std::string> getAvailableReportDates();
 
 private:
